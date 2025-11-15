@@ -1,9 +1,5 @@
-import React from 'react'
+import AppRouter from "./router/AppRouter";
 
-const App = () => {
-  return (
-    <div className='w-screen h-screen flex justify-center item-center bg-black text-white'>App</div>
-  )
+export default function App() {
+  return <AppRouter />;
 }
-
-export default App
