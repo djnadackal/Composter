@@ -5,10 +5,12 @@ import GlassSurface from "../components/external/GlassSurface.jsx";
 import LoginButton from "../components/external/Button.jsx";
 import AuthModal from "../components/external/AuthModal.jsx";
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const LandingPage = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState('login');
+  const navigate = useNavigate();
 
   const openModal = (mode) => {
     setModalMode(mode);
@@ -18,9 +20,12 @@ const LandingPage = () => {
   const closeModal = () => setModalOpen(false);
 
   const handleAuthSubmit = (data, mode) => {
-    // TODO: hook into real auth flow. For now just console.log and close the modal
     console.log('auth submit', mode, data);
     closeModal();
+  };
+
+  const handleDocNavigate = () => {
+    navigate('/docs');
   };
 
   return (
@@ -50,6 +55,16 @@ const LandingPage = () => {
         <div className="relative text-center">
           <div className="w-full">
             <div className="max-w-4xl mx-auto">
+              <GlassSurface
+                width={140}
+                height={44}
+                borderRadius={30}
+                className="cursor-pointer px-4 ml-90 mb-6"
+                mixBlendMode="screen"
+                onClick={handleDocNavigate}
+              >
+                <span className="text-sm text-white font-medium">Docs</span>
+              </GlassSurface>
               <SplitText
                 text="Your Personal Vault"
                 className="text-7xl text-white font-medium leading-tight"
