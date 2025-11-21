@@ -6,6 +6,7 @@ import LoginButton from "../components/external/Button.jsx";
 import AuthModal from "../components/external/AuthModal.jsx";
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { authClient } from "../lib/auth-client.ts";
 
 const LandingPage = () => {
   const [modalOpen, setModalOpen] = useState(false);
@@ -19,9 +20,16 @@ const LandingPage = () => {
 
   const closeModal = () => setModalOpen(false);
 
-  const handleAuthSubmit = (data, mode) => {
-    console.log('auth submit', mode, data);
-    closeModal();
+  const handleAuthSubmit = async (data, mode) => {
+    if(mode === 'login') {
+      const {data, error} = await authClient.signIn.email({
+        email, password
+      })
+    } if(mode === 'signup') {
+      const {data, error} = await authClient.signUp.email({
+        email, password
+      })
+    }
   };
 
   const handleDocNavigate = () => {
