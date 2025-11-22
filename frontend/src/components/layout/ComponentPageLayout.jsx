@@ -3,7 +3,7 @@ import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { fetchUser } from "../../lib/fetchUser.js"
 import DropDown, { DropDownItem } from "../ui/DropDown.jsx"
 import { authClient } from "../../lib/auth-client.ts";
-
+import Button from "../external/Button.jsx"
 const ComponentPageLayout = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
@@ -37,7 +37,9 @@ const ComponentPageLayout = () => {
 
   return (
     <div className="min-h-screen bg-[#060010] text-white font-[font]">
-      <div className="fixed w-screen h-20 bg-[#060010] flex items-center justify-end px-90 z-50">
+      <div className="fixed w-screen h-22 flex items-center justify-end px-90 z-50">
+        <span className="absolute pl-2 font-bold text-2xl cursor-pointer left-83">LOGO</span>
+        <Button className="mr-6" onClick={() => navigate('/docs')}>Docs</Button>
         <DropDown
           trigger={
             <div className="flex items-center cursor-pointer">
