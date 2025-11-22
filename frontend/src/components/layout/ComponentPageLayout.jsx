@@ -4,19 +4,11 @@ import { NavLink, Outlet } from 'react-router-dom'
 const ComponentPageLayout = () => {
   const sections = [
     {
-      title: 'Get Started',
+      title: 'Button Component',
       items: [
-        { id: 'introduction', label: 'Introduction' },
-        { id: 'installation', label: 'Installation' },
-        { id: 'mcp', label: 'MCP' },
-        { id: 'index', label: 'Index' },
+        { id: 'button-1', label: 'Button 1' },
+        { id: 'button-2', label: 'Button 2' },
       ],
-    },
-    {
-      title: 'Text Animations',
-      items: [
-        'Split Text', 'Blur Text', 'Circular Text', 'Text Type', 'Shuffle', 'Shiny Text', 'Text Pressure', 'Curved Loop', 'Fuzzy Text', 'Gradient Text', 'Falling Text', 'Text Cursor', 'Decrypted Text', 'True Focus'
-      ].map((label, i) => ({ id: `component-${i + 1}`, label })),
     },
   ]
 
@@ -33,7 +25,7 @@ const ComponentPageLayout = () => {
                     {s.items.map((item) => (
                       <NavLink
                         key={item.id}
-                        to={`component/${item.id}`}
+                        to={item.id}
                         className={({ isActive }) =>
                           `text-sm px-2 py-1 rounded-l-md ${isActive ? 'text-white border-l-2 border-violet-400 bg-white/2' : 'text-zinc-300 hover:text-white hover:border-l-2 hover:border-violet-400'}`
                         }

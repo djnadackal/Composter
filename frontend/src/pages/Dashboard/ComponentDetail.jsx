@@ -4,12 +4,18 @@ import { useParams } from 'react-router-dom'
 const ComponentDetail = () => {
   const { id } = useParams()
 
+  const getPreviewText = () => {
+    if (id === 'button-1') return 'Preview of Button 1'
+    if (id === 'button-2') return 'Preview of Button 2'
+    return 'Select a button to see preview'
+  }
+
   return (
     <div>
       <div className="flex items-start justify-between mb-6">
         <div>
-          <h1 className="text-5xl font-extrabold text-white">{id ? id.replace(/-/g, ' ') : 'Component'}</h1>
-          <p className="text-zinc-400 mt-2">Placeholder preview and settings for this component.</p>
+          <h1 className="text-5xl font-extrabold text-white">{id ? id.replace(/-/g, ' ').toUpperCase() : 'Component'}</h1>
+          <p className="text-zinc-400 mt-2">Preview for {id || 'component'}</p>
         </div>
         <div className="flex items-center gap-3">
           <button className="px-4 py-2 bg-white/5 rounded-md">Preview</button>
@@ -19,7 +25,7 @@ const ComponentDetail = () => {
       </div>
 
       <div className="bg-white/2 rounded-xl p-8 mb-8 h-72 flex items-center justify-center">
-        <div className="text-zinc-300">[ Preview Canvas Placeholder ]</div>
+        <div className="text-3xl text-violet-300 font-semibold">{getPreviewText()}</div>
       </div>
 
       <h3 className="text-2xl text-violet-300 font-semibold mb-4">Customize</h3>
