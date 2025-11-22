@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, { useState } from "react";
 import DarkVeil from "../components/external/DarkVeil.jsx";
 import SplitText from "../components/external/text-animation/SplitText.jsx";
 import GlassSurface from "../components/external/GlassSurface.jsx";
@@ -19,37 +19,49 @@ const LandingPage = () => {
 
   const closeModal = () => setModalOpen(false);
 
-    const handleAuthSubmit = async (formData, mode) => {
-      const { name, email, password } = formData;
+  const handleAuthSubmit = async (formData, mode) => {
+    const { name, email, password } = formData;
 
-      if (mode === "login") {
-        const { data, error } = await authClient.signIn.email({ email, password });
-        if (error) {
-          console.log(error.message);
-          return;
+    if (mode === "login") {
+      const { data, error } = await authClient.signIn.email({
+        email,
+        password,
+      });
+      if (error) {
+        console.log(error.message);
+        return;
+      }
+      {
+        onError: (ctx) => {
+          // Handle the error
+          if (ctx.error.status === 403) {
+            alert("Please verify your email address");
+          }
+          alert(ctx.error.message);
         }
+      }
 
-        closeModal();
-        navigate("/app");
+      closeModal();
+      navigate("/app");
+      return;
+    }
+
+    if (mode === "signup") {
+      const { data, error } = await authClient.signUp.email({
+        name,
+        email,
+        password,
+      });
+      if (error) {
+        console.log(error.message);
         return;
       }
 
-      if (mode === "signup") {
-        const { data, error } = await authClient.signUp.email({
-          name,
-          email,
-          password,
-        });
-        if (error) {
-          console.log(error.message);
-          return;
-        }
-
-        closeModal();
-        navigate("/app");
-        return;
-      }
-    };
+      closeModal();
+      navigate("/app");
+      return;
+    }
+  };
 
   const handleDocNavigate = () => {
     navigate("/docs");
