@@ -4,7 +4,7 @@ import { PrismaPg } from '@prisma/adapter-pg'
 import pg from 'pg'
 
 
-dotenv.config()
+dotenv.config({ quiet: true })
 
 // Prisma v7 requires a driver adapter for database connections
 const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL })

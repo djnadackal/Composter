@@ -14,6 +14,7 @@ export function createMcpServer(userId) {
 
   server.tool(
     "search_components",
+    "Search for React components by title or category name. Returns a list of matching components with their IDs and categories.",
     { 
       query: z.string().describe("Search term for component title or category name") 
     },
@@ -50,6 +51,7 @@ export function createMcpServer(userId) {
 
   server.tool(
     "read_component",
+    "Read the full source code of a specific React component by its name. Returns the component code, category, and creation date.",
     { 
       componentName: z.string().describe("The name of the component to read") 
     },

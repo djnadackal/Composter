@@ -11,7 +11,7 @@ async function main() {
     const path = await import("path");
     
     dotenv.default.config({ 
-      path: path.resolve(process.cwd(), "../.env"),
+      path: path.resolve(process.cwd(), "mcp/.env"),
       debug: false 
     });
 
