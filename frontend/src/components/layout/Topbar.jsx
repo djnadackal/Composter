@@ -1,5 +1,5 @@
 import React from "react";
-import { LogOut } from "lucide-react";
+import { LogOut, Book } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { signOut, useSession } from "../../lib/auth-client.ts";
 
@@ -17,6 +17,16 @@ export default function Topbar() {
                 <div className="flex items-center justify-end h-full px-6 text-white relative">
                     {/* Actions */}
                     <div className="flex items-center gap-4">
+                        <button
+                            onClick={() => navigate("/docs")}
+                            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#0a0018] text-white/70 hover:text-white border border-white/10 hover:border-violet-500/30 transition-colors"
+                            title="Documentation"
+                        >
+                            <Book size={18} />
+                            <span className="text-sm font-medium">Docs</span>
+                        </button>
+
+                        <div className="h-8 w-px bg-white/10"></div>
 
                         <div className="flex items-center gap-3">
                             <div className="text-right hidden sm:block">

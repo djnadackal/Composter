@@ -40,9 +40,7 @@ const AppRouter = () => {
         <Routes>
           {/* Public Routes */}
           <Route path="/" element={<LandingPage />} />
-
-          {/* Legacy Docs Route - Redirect to new docs */}
-          <Route path="/docs" element={<Navigate to="/dashboard/docs" replace />} />
+          <Route path="/docs" element={<Docs />} />
 
           {/* Auth Routes */}
           <Route path="/login" element={<Login />} />
