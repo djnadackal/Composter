@@ -1,6 +1,6 @@
 import React from "react";
 import { NavLink, Link, useNavigate } from "react-router-dom";
-import { Home, Box, Settings, LogOut, BookOpen } from "lucide-react";
+import { Home, Box, Settings, LogOut } from "lucide-react";
 import { signOut } from "../../lib/auth-client.ts";
 import logo from "@/assets/logo.png";
 
@@ -10,7 +10,6 @@ const Sidebar = () => {
     const navItems = [
         { icon: Home, label: "Home", path: "/app" },
         { icon: Box, label: "My Components", path: "/app/components" },
-        { icon: BookOpen, label: "Documentation", path: "/docs" },
         { icon: Settings, label: "Settings", path: "/app/settings" },
     ];
 

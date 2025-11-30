@@ -28,25 +28,17 @@ const transitionVariants = {
 
 export function HeroSection() {
     return (
-        <>
+        <div className="relative min-h-screen w-full overflow-x-hidden bg-background">
             <HeroHeader />
-            <main className="overflow-hidden">
+            <main className="relative">
+                {/* Purple glow effects - contained within viewport */}
                 <div
                     aria-hidden
-                    className="z-[2] absolute inset-0 pointer-events-none isolate opacity-70 contain-strict hidden lg:block">
-                    <div className="w-[35rem] h-[80rem] -translate-y-[350px] absolute left-0 top-0 -rotate-45 rounded-full bg-[radial-gradient(68.54%_68.72%_at_55.02%_31.46%,hsla(262,83%,58%,.15)_0,hsla(262,83%,58%,.05)_50%,transparent_80%)]" />
-                    <div className="h-[80rem] absolute left-0 top-0 w-56 -rotate-45 rounded-full bg-[radial-gradient(50%_50%_at_50%_50%,hsla(262,83%,58%,.12)_0,hsla(262,83%,58%,.04)_80%,transparent_100%)] [translate:5%_-50%]" />
-                    <div className="h-[80rem] -translate-y-[350px] absolute left-0 top-0 w-56 -rotate-45 bg-[radial-gradient(50%_50%_at_50%_50%,hsla(262,83%,58%,.08)_0,hsla(262,83%,58%,.02)_80%,transparent_100%)]" />
+                    className="fixed inset-0 pointer-events-none overflow-hidden">
+                    <div className="absolute -top-1/4 -left-1/4 w-[50vw] h-[50vw] max-w-[600px] max-h-[600px] rounded-full bg-[radial-gradient(circle,hsla(262,83%,58%,.12)_0%,transparent_70%)] opacity-70" />
+                    <div className="absolute top-1/4 -right-1/4 w-[40vw] h-[40vw] max-w-[500px] max-h-[500px] rounded-full bg-[radial-gradient(circle,hsla(262,83%,58%,.1)_0%,transparent_70%)] opacity-60" />
+                    <div className="absolute bottom-0 left-1/4 w-[30vw] h-[30vw] max-w-[400px] max-h-[400px] rounded-full bg-[radial-gradient(circle,hsla(280,83%,58%,.08)_0%,transparent_70%)] blur-2xl opacity-50" />
                 </div>
-                {/* Purple glow effects */}
-                <div 
-                    aria-hidden 
-                    className="absolute top-0 right-0 w-[40rem] h-[40rem] -translate-y-1/2 translate-x-1/4 rounded-full bg-[radial-gradient(circle,hsla(262,83%,58%,.12)_0%,transparent_70%)] pointer-events-none" 
-                />
-                <div 
-                    aria-hidden 
-                    className="absolute top-1/3 left-1/4 w-[30rem] h-[30rem] rounded-full bg-[radial-gradient(circle,hsla(280,83%,58%,.08)_0%,transparent_70%)] pointer-events-none blur-3xl" 
-                />
                 <section>
                     <div className="relative pt-24 md:pt-36">
                         <div aria-hidden className="absolute inset-0 -z-10 size-full [background:radial-gradient(125%_125%_at_50%_100%,transparent_0%,var(--color-background)_75%)]" />
@@ -132,14 +124,14 @@ export function HeroSection() {
                                 },
                                 ...transitionVariants,
                             }}>
-                            <div className="relative -mr-56 mt-8 overflow-hidden px-2 sm:mr-0 sm:mt-12 md:mt-20">
+                            <div className="relative mt-8 overflow-hidden px-4 sm:px-2 sm:mt-12 md:mt-20">
                                 <div
                                     aria-hidden
                                     className="bg-gradient-to-b to-background absolute inset-0 z-10 from-transparent from-35%"
                                 />
-                                <div className="inset-shadow-2xs ring-background dark:inset-shadow-white/20 bg-background relative mx-auto max-w-6xl overflow-hidden rounded-2xl border p-4 shadow-lg shadow-zinc-950/15 ring-1">
+                                <div className="bg-background relative mx-auto max-w-5xl overflow-hidden rounded-2xl border border-border/50 p-3 sm:p-4 shadow-lg shadow-zinc-950/15">
                                     <img
-                                        className="bg-background aspect-video relative rounded-2xl w-full"
+                                        className="bg-background aspect-video relative rounded-xl w-full"
                                         src="/cli_tool.gif"
                                         alt="Composter CLI demo"
                                     />
@@ -238,7 +230,7 @@ export function HeroSection() {
                     </div>
                 </section>
             </main>
-        </>
+        </div>
     )
 }
 
