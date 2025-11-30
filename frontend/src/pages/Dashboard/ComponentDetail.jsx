@@ -1,12 +1,46 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useParams, Link } from "react-router-dom";
-import { ArrowLeft, Copy, Clock, Layers, FileText, FolderTree, PackageIcon } from "lucide-react";
-import { Sandpack } from "@codesandbox/sandpack-react";
+import { ArrowLeft, Copy, Eye, Code2, FileText, FolderTree, PackageIcon, Check, RefreshCw, BookOpen } from "lucide-react";
+import { Sandpack, SandpackPreview, SandpackProvider } from "@codesandbox/sandpack-react";
 import { dracula } from "@codesandbox/sandpack-themes";
 import Card from "../../components/ui/Card.jsx";
-import Button from "../../components/ui/Button.jsx";
-import Badge from "../../components/ui/Badge.jsx";
+import { Button } from "@/components/ui/button";
 import CodeBlock from "../../components/ui/CodeBlock.jsx";
+import { cn } from "@/lib/utils";
+
+// Copyable code block component
+const CopyableCodeBlock = ({ code, label }) => {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = async () => {
+    await navigator.clipboard.writeText(code);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <div>
+      {label && <p className="text-xs text-muted-foreground mb-2">{label}</p>}
+      <div className="relative group">
+        <div className="flex items-center bg-[#0d0d0d] rounded-xl border border-border/30 overflow-hidden">
+          <div className="flex-shrink-0 py-3 pl-4 pr-3 text-right select-none border-r border-border/20">
+            <span className="text-xs text-muted-foreground/50 font-mono">1</span>
+          </div>
+          <pre className="flex-1 py-3 px-4 overflow-x-auto">
+            <code className="text-sm font-mono text-zinc-300">{code}</code>
+          </pre>
+          <button
+            onClick={handleCopy}
+            className="flex-shrink-0 p-3 border-l border-border/20 text-muted-foreground hover:text-foreground hover:bg-zinc-800/50 transition-colors"
+            title="Copy"
+          >
+            {copied ? <Check size={16} className="text-emerald-400" /> : <Copy size={16} />}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const ComponentDetail = () => {
   const { id } = useParams();
@@ -14,6 +48,7 @@ const ComponentDetail = () => {
   const [component, setComponent] = useState(null);
   const [loading, setLoading] = useState(true);
   const [selectedFile, setSelectedFile] = useState(null);
+  const [previewKey, setPreviewKey] = useState(0);
 
   useEffect(() => {
     const fetchComponent = async () => {
@@ -41,23 +76,20 @@ const ComponentDetail = () => {
     if (!component) return { sandpackFiles: {}, mainFilename: "", dependencies: {} };
 
     let files = {};
-    let isMultiFile = false;
 
     // Parse code (handle both JSON multi-file and legacy single string)
     try {
       const parsed = JSON.parse(component.code);
       if (typeof parsed === 'object' && parsed !== null) {
         files = parsed;
-        isMultiFile = true;
       } else {
         files = { "/App.js": component.code };
       }
     } catch (e) {
-      // Legacy format: raw string
       files = { "/App.js": component.code };
     }
 
-    // Normalize file paths (ensure leading '/')
+    // Normalize file paths
     const normalizedFiles = {};
     let firstFile = "";
     
@@ -76,14 +108,13 @@ const ComponentDetail = () => {
 import { createRoot } from "react-dom/client";
 import * as UserExports from "${entryImport}";
 
-// Smart Component Detection: Handle both default and named exports
 const UserComponent = UserExports.default || 
   Object.values(UserExports).find(exp => typeof exp === 'function') || 
-  (() => <div className="text-red-500 p-4">Error: No React component exported. Please export your component.</div>);
+  (() => <div className="text-red-500 p-4">Error: No React component exported.</div>);
 
 const root = createRoot(document.getElementById("root"));
 root.render(
-  <div className="p-8 flex justify-center min-h-screen items-center bg-black text-white">
+  <div className="p-8 flex justify-center min-h-screen items-center bg-[#0d0d0d] text-white">
     <UserComponent />
   </div>
 );`;
@@ -100,17 +131,14 @@ root.render(
 </body>
 </html>`;
 
-    // Inject tsconfig.json for @/ path alias support
     normalizedFiles["/tsconfig.json"] = JSON.stringify({
       compilerOptions: {
         baseUrl: ".",
-        paths: {
-          "@/*": ["./src/*"]
-        }
+        paths: { "@/*": ["./src/*"] }
       }
     }, null, 2);
 
-    // Parse dependencies from component (stored as JSON in DB)
+    // Parse dependencies
     let deps = {};
     if (component.dependencies) {
       try {
@@ -129,13 +157,13 @@ root.render(
     };
   }, [component]);
 
-  // Generate file tree structure from files
+  // Generate file tree structure
   const fileTree = useMemo(() => {
     if (!sandpackFiles || Object.keys(sandpackFiles).length === 0) return [];
 
     const tree = {};
     const visibleFiles = Object.keys(sandpackFiles).filter(
-      path => path !== '/root.js' && path !== '/public/index.html'
+      path => path !== '/root.js' && path !== '/public/index.html' && path !== '/tsconfig.json'
     );
 
     visibleFiles.forEach(filePath => {
@@ -144,10 +172,8 @@ root.render(
 
       parts.forEach((part, index) => {
         if (index === parts.length - 1) {
-          // It's a file
           current[part] = { type: 'file', path: filePath };
         } else {
-          // It's a folder
           if (!current[part]) {
             current[part] = { type: 'folder', children: {} };
           }
@@ -159,57 +185,7 @@ root.render(
     return tree;
   }, [sandpackFiles]);
 
-  // Generate instructions based on file structure
-  const instructions = useMemo(() => {
-    if (!component) return "";
-
-    const fileCount = Object.keys(sandpackFiles).filter(
-      path => path !== '/root.js' && path !== '/public/index.html'
-    ).length;
-
-    const depsCount = Object.keys(dependencies).length;
-
-    return `## ${component.title}
-
-### Overview
-This component is located in the **${component.category?.name || "Uncategorized"}** category.
-
-### File Structure
-This component contains **${fileCount}** file${fileCount > 1 ? 's' : ''}:
-${Object.keys(sandpackFiles)
-  .filter(path => path !== '/root.js' && path !== '/public/index.html')
-  .map(file => `- \`${file}\``)
-  .join('\n')}
-
-${depsCount > 0 ? `### Dependencies
-This component requires **${depsCount}** external package${depsCount > 1 ? 's' : ''}:
-${Object.entries(dependencies).map(([name, version]) => `- **${name}**: ${version}`).join('\n')}` : ''}
-
-### Usage
-Import and use this component in your React application. Make sure all dependencies are installed and file paths are correctly set up.`;
-  }, [component, sandpackFiles, dependencies]);
-
-  const formatTimeAgo = (dateString) => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffMs = now - date;
-    const diffMins = Math.floor(diffMs / 60000);
-    const diffHours = Math.floor(diffMs / 3600000);
-    const diffDays = Math.floor(diffMs / 86400000);
-
-    if (diffMins < 60) return `${diffMins} mins ago`;
-    if (diffHours < 24) return `${diffHours} hours ago`;
-    if (diffDays === 1) return "1 day ago";
-    return `${diffDays} days ago`;
-  };
-
-  const handleCopy = () => {
-    if (sandpackFiles[mainFilename]) {
-      navigator.clipboard.writeText(sandpackFiles[mainFilename]);
-    }
-  };
-
-  // Render file tree recursively
+  // Render file tree
   const renderFileTree = (tree, parentPath = '') => {
     return Object.entries(tree).map(([name, node]) => {
       if (node.type === 'file') {
@@ -218,11 +194,12 @@ Import and use this component in your React application. Make sure all dependenc
           <button
             key={node.path}
             onClick={() => setSelectedFile(node.path)}
-            className={`flex items-center gap-2 px-3 py-2 text-sm rounded-lg transition-colors w-full text-left ${
+            className={cn(
+              "flex items-center gap-2 px-3 py-2 text-sm rounded-lg transition-colors w-full text-left",
               isSelected
-                ? 'bg-violet-500/20 text-violet-300'
-                : 'text-white/70 hover:text-white hover:bg-[#060010]'
-            }`}
+                ? "bg-primary/10 text-primary"
+                : "text-muted-foreground hover:text-foreground hover:bg-zinc-800/50"
+            )}
           >
             <FileText size={16} />
             <span>{name}</span>
@@ -231,7 +208,7 @@ Import and use this component in your React application. Make sure all dependenc
       } else {
         return (
           <div key={`${parentPath}/${name}`} className="space-y-1">
-            <div className="flex items-center gap-2 px-3 py-2 text-sm text-white/50">
+            <div className="flex items-center gap-2 px-3 py-2 text-sm text-muted-foreground/70">
               <FolderTree size={16} />
               <span>{name}</span>
             </div>
@@ -247,7 +224,8 @@ Import and use this component in your React application. Make sure all dependenc
   if (loading) {
     return (
       <div className="text-center py-20">
-        <h2 className="text-xl text-white/60">Loading component...</h2>
+        <div className="w-8 h-8 border-2 border-primary/30 border-t-primary rounded-full animate-spin mx-auto mb-4" />
+        <p className="text-muted-foreground">Loading component...</p>
       </div>
     );
   }
@@ -255,10 +233,10 @@ Import and use this component in your React application. Make sure all dependenc
   if (!component) {
     return (
       <div className="text-center py-20">
-        <h2 className="text-2xl font-bold text-white">Component not found</h2>
-        <Link to="/app/components">
-          <Button className="mt-4">Back to Components</Button>
-        </Link>
+        <h2 className="text-2xl font-medium text-foreground mb-4">Component not found</h2>
+        <Button asChild>
+          <Link to="/app/components">Back to Components</Link>
+        </Button>
       </div>
     );
   }
@@ -268,181 +246,77 @@ Import and use this component in your React application. Make sure all dependenc
     setSelectedFile(mainFilename);
   }
 
+  const depsArray = Object.keys(dependencies);
+
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-start justify-between">
-        <div>
-          <Link to="/app/components" className="inline-flex items-center gap-2 text-sm text-white/60 hover:text-white mb-4 transition-colors">
-            <ArrowLeft size={16} />
-            Back to Components
+    <div className="space-y-8">
+      {/* Back Link + Documentation */}
+      <div className="flex items-center justify-between">
+        <Link to="/app/components" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
+          <ArrowLeft size={16} />
+          Back to Components
+        </Link>
+        <Button variant="outline" size="sm" asChild>
+          <Link to="/docs">
+            <BookOpen size={16} className="mr-2" />
+            Documentation
           </Link>
-          <h1 className="text-3xl font-bold text-white mb-2">{component.title}</h1>
-
-          <div className="flex items-center gap-4 mt-4">
-            <Badge variant="secondary">{component.category?.name || "Uncategorized"}</Badge>
-            <div className="flex items-center gap-2 text-sm text-white/40">
-              <Clock size={14} />
-              <span>Created {formatTimeAgo(component.createdAt)}</span>
-            </div>
-            {Object.keys(dependencies).length > 0 && (
-              <div className="flex items-center gap-2 text-sm text-white/40">
-                <Layers size={14} />
-                <span>{Object.keys(dependencies).length} dependencies</span>
-              </div>
-            )}
-          </div>
-        </div>
-
-        <div className="flex gap-3">
-          <Button 
-            variant="secondary"
-            onClick={handleCopy}
-          >
-            <Copy size={16} className="mr-2" />
-            Copy Code
-          </Button>
-        </div>
+        </Button>
       </div>
 
+      {/* Title */}
+      <h1 className="text-4xl font-semibold text-foreground">{component.title}</h1>
+
       {/* Tabs */}
-      <div className="border-b border-white/10">
-        <div className="flex gap-6">
-          {["preview", "code"].map((tab) => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`
-                pb-3 text-sm font-medium capitalize transition-all relative
-                ${activeTab === tab ? "text-white" : "text-white/40 hover:text-white/70"}
-              `}
-            >
-              {tab}
-              {activeTab === tab && (
-                <div className="absolute bottom-0 left-0 w-full h-0.5 bg-violet-500 rounded-full" />
-              )}
-            </button>
-          ))}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-1 p-1 rounded-xl bg-zinc-900/50 border border-border/30">
+          <button
+            onClick={() => setActiveTab("preview")}
+            className={cn(
+              "flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors",
+              activeTab === "preview"
+                ? "bg-primary/10 text-primary"
+                : "text-muted-foreground hover:text-foreground"
+            )}
+          >
+            <Eye size={16} />
+            Preview
+          </button>
+          <button
+            onClick={() => setActiveTab("code")}
+            className={cn(
+              "flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors",
+              activeTab === "code"
+                ? "bg-primary/10 text-primary"
+                : "text-muted-foreground hover:text-foreground"
+            )}
+          >
+            <Code2 size={16} />
+            Code
+          </button>
         </div>
+
+        {activeTab === "preview" && (
+          <button
+            onClick={() => setPreviewKey(k => k + 1)}
+            className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-zinc-800/50 transition-colors"
+            title="Refresh preview"
+          >
+            <RefreshCw size={18} />
+          </button>
+        )}
       </div>
 
       {/* Content */}
-      <div className="min-h-[500px]">
-        {activeTab === "code" && (
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-            {/* Left Column: File Tree + Dependencies */}
-            <div className="lg:col-span-1 space-y-4">
-              {/* File Structure */}
-              <Card className="p-4">
-                <h3 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
-                  <FolderTree size={16} />
-                  File Structure
-                </h3>
-                <div className="space-y-1">
-                  {renderFileTree(fileTree)}
-                </div>
-              </Card>
-
-              {/* Dependencies */}
-              {Object.keys(dependencies).length > 0 && (
-                <Card className="p-4">
-                  <h3 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
-                    <PackageIcon size={16} />
-                    Dependencies
-                  </h3>
-                  <div className="space-y-2">
-                    {Object.entries(dependencies).map(([name, version]) => (
-                      <div key={name} className="flex justify-between items-center text-xs">
-                        <span className="text-white/70 font-mono">{name}</span>
-                        <Badge variant="secondary" className="text-xs">{version}</Badge>
-                      </div>
-                    ))}
-                  </div>
-                </Card>
-              )}
-            </div>
-
-            {/* Right Column: Code Viewer */}
-            <div className="lg:col-span-3 space-y-4">
-              <Card className="p-0 overflow-hidden">
-                <div className="bg-[#060010] px-4 py-3 border-b border-white/10 flex items-center justify-between">
-                  <span className="text-sm font-mono text-white/70">{selectedFile || mainFilename}</span>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => {
-                      const code = sandpackFiles[selectedFile || mainFilename];
-                      if (code) navigator.clipboard.writeText(code);
-                    }}
-                  >
-                    <Copy size={14} className="mr-2" />
-                    Copy
-                  </Button>
-                </div>
-                <div className="max-h-[600px] overflow-auto">
-                  <CodeBlock 
-                    code={sandpackFiles[selectedFile || mainFilename] || "// No code available"} 
-                    language="jsx" 
-                  />
-                </div>
-              </Card>
-
-              {/* Installation Commands */}
-              <Card className="p-4">
-                <h3 className="text-sm font-semibold text-white mb-3">Installation</h3>
-                <div className="space-y-3">
-                  {/* NPM Install */}
-                  {Object.keys(dependencies).length > 0 && (
-                    <div>
-                      <p className="text-xs text-white/60 mb-2">Install dependencies:</p>
-                      <div className="relative group">
-                        <pre className="bg-black/40 rounded-lg p-3 text-xs font-mono text-white/80 overflow-x-auto">
-                          npm install {Object.keys(dependencies).join(' ')}
-                        </pre>
-                        <button
-                          onClick={() => navigator.clipboard.writeText(`npm install ${Object.keys(dependencies).join(' ')}`)}
-                          className="absolute right-2 top-2 p-1.5 rounded bg-[#060010] hover:bg-[#0a0018] opacity-0 group-hover:opacity-100 transition-opacity"
-                        >
-                          <Copy size={12} className="text-white" />
-                        </button>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Component Pull */}
-                  <div>
-                    <p className="text-xs text-white/60 mb-2">Pull component via CLI:</p>
-                    <div className="relative group">
-                      <pre className="bg-black/40 rounded-lg p-3 text-xs font-mono text-white/80 overflow-x-auto">
-                        composter pull {component.category?.name || 'category'} {component.title} ./
-                      </pre>
-                      <button
-                        onClick={() => navigator.clipboard.writeText(`composter pull ${component.category?.name || 'category'} ${component.title} ./`)}
-                        className="absolute right-2 top-2 p-1.5 rounded bg-white/10 hover:bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity"
-                      >
-                        <Copy size={12} className="text-white" />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </Card>
-            </div>
-          </div>
-        )}
-
-        {activeTab === "preview" && (
-          <Card className="overflow-hidden p-0 bg-[#151515]">
-            <Sandpack
+      {activeTab === "preview" && (
+        <div className="space-y-8">
+          {/* Preview Area */}
+          <div className="rounded-2xl border border-border/30 bg-[#0d0d0d] overflow-hidden">
+            <SandpackProvider
+              key={previewKey}
               template="react"
               theme={dracula}
               files={sandpackFiles}
-              options={{
-                showNavigator: false,
-                showTabs: Object.keys(sandpackFiles).length > 3,
-                editorHeight: 600,
-                activeFile: mainFilename,
-                externalResources: ["https://cdn.tailwindcss.com"],
-              }}
               customSetup={{
                 entry: "/root.js",
                 dependencies: {
@@ -454,10 +328,144 @@ Import and use this component in your React application. Make sure all dependenc
                   "tailwind-merge": "latest"
                 }
               }}
+              options={{
+                externalResources: ["https://cdn.tailwindcss.com"],
+              }}
+            >
+              <SandpackPreview 
+                showNavigator={false}
+                showRefreshButton={false}
+                style={{ height: "400px" }}
+              />
+            </SandpackProvider>
+          </div>
+
+          {/* Dependencies */}
+          {depsArray.length > 0 && (
+            <div>
+              <h3 className="text-lg font-medium text-foreground mb-4">Dependencies</h3>
+              <div className="flex flex-wrap gap-2">
+                {depsArray.map((dep) => (
+                  <span
+                    key={dep}
+                    className="px-3 py-1.5 rounded-lg bg-primary/10 text-primary text-sm font-medium border border-primary/20"
+                  >
+                    {dep}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Installation Commands */}
+          <div className="space-y-4">
+            {depsArray.length > 0 && (
+              <CopyableCodeBlock 
+                code={`npm install ${depsArray.join(' ')}`}
+                label="Install dependencies"
+              />
+            )}
+            
+            <CopyableCodeBlock 
+              code={`composter pull ${component.category?.name || 'category'} ${component.title}`}
+              label="Pull component via CLI"
             />
-          </Card>
-        )}
-      </div>
+          </div>
+
+          {/* Code Sandbox */}
+          <div>
+            <h3 className="text-lg font-medium text-foreground mb-4">Interactive Sandbox</h3>
+            <div className="rounded-2xl border-2 border-border/40 overflow-hidden">
+              <Sandpack
+                template="react"
+                theme={dracula}
+                files={sandpackFiles}
+                options={{
+                  showNavigator: false,
+                  showTabs: true,
+                  editorHeight: 500,
+                  activeFile: mainFilename,
+                  externalResources: ["https://cdn.tailwindcss.com"],
+                }}
+                customSetup={{
+                  entry: "/root.js",
+                  dependencies: {
+                    ...dependencies,
+                    "react": "^18.2.0",
+                    "react-dom": "^18.2.0",
+                    "lucide-react": "latest",
+                    "clsx": "latest",
+                    "tailwind-merge": "latest"
+                  }
+                }}
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {activeTab === "code" && (
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          {/* Left Column: File Tree */}
+          <div className="lg:col-span-1 space-y-4">
+            <Card noPadding className="p-4">
+              <h3 className="text-sm font-medium text-foreground mb-3 flex items-center gap-2">
+                <FolderTree size={16} className="text-primary" />
+                Files
+              </h3>
+              <div className="space-y-1">
+                {renderFileTree(fileTree)}
+              </div>
+            </Card>
+
+            {/* Dependencies in code view */}
+            {depsArray.length > 0 && (
+              <Card noPadding className="p-4">
+                <h3 className="text-sm font-medium text-foreground mb-3 flex items-center gap-2">
+                  <PackageIcon size={16} className="text-primary" />
+                  Dependencies
+                </h3>
+                <div className="flex flex-wrap gap-2">
+                  {depsArray.map((dep) => (
+                    <span
+                      key={dep}
+                      className="px-2 py-1 rounded-md bg-primary/10 text-primary text-xs font-medium"
+                    >
+                      {dep}
+                    </span>
+                  ))}
+                </div>
+              </Card>
+            )}
+          </div>
+
+          {/* Right Column: Code Viewer */}
+          <div className="lg:col-span-3">
+            <Card noPadding className="overflow-hidden">
+              <div className="bg-zinc-900 px-4 py-3 border-b border-border/30 flex items-center justify-between">
+                <span className="text-sm font-mono text-muted-foreground">{selectedFile || mainFilename}</span>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    const code = sandpackFiles[selectedFile || mainFilename];
+                    if (code) navigator.clipboard.writeText(code);
+                  }}
+                >
+                  <Copy size={14} className="mr-2" />
+                  Copy
+                </Button>
+              </div>
+              <div className="max-h-[700px] overflow-auto">
+                <CodeBlock 
+                  code={sandpackFiles[selectedFile || mainFilename] || "// No code available"} 
+                  language="jsx" 
+                />
+              </div>
+            </Card>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -2,24 +2,26 @@ import React from "react";
 import { Outlet } from "react-router-dom";
 import Sidebar from "./Sidebar.jsx";
 import Topbar from "./Topbar.jsx";
-import DarkVeil from "../external/DarkVeil.jsx";
 
 const DashboardLayout = () => {
   return (
-    <div className="min-h-screen bg-[#050505] font-[font] text-white relative overflow-hidden">
-      {/* Background Effects */}
-      <div className="fixed inset-0 z-0 pointer-events-none">
-        <DarkVeil />
-        <div className="absolute top-[-20%] right-[-10%] w-[600px] h-[600px] bg-violet-600/20 rounded-full blur-[120px] mix-blend-screen pointer-events-none" />
-        <div className="absolute bottom-[-20%] left-[-10%] w-[500px] h-[500px] bg-fuchsia-600/10 rounded-full blur-[100px] mix-blend-screen pointer-events-none" />
-      </div>
+    <div className="min-h-screen bg-[#09090b] text-foreground relative">
+      {/* Subtle purple gradient backgrounds */}
+      <div 
+        aria-hidden 
+        className="fixed top-0 right-0 w-[50rem] h-[50rem] -translate-y-1/3 translate-x-1/4 rounded-full bg-[radial-gradient(circle,hsla(262,83%,58%,.06)_0%,transparent_70%)] pointer-events-none" 
+      />
+      <div 
+        aria-hidden 
+        className="fixed bottom-0 left-0 w-[40rem] h-[40rem] translate-y-1/3 -translate-x-1/4 rounded-full bg-[radial-gradient(circle,hsla(280,83%,58%,.04)_0%,transparent_70%)] pointer-events-none" 
+      />
 
       <Sidebar />
       <Topbar />
 
       {/* Main Content Area */}
-      <main className="pl-64 pt-20 min-h-screen relative z-10">
-        <div className="p-8 max-w-7xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <main className="lg:pl-64 pt-16 min-h-screen relative z-10">
+        <div className="p-6 lg:p-8 max-w-7xl mx-auto">
           <Outlet />
         </div>
       </main>
