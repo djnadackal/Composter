@@ -1,288 +1,566 @@
-import React from "react";
-import { ArrowLeft, Book, Code, Terminal, Zap } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import { Github, Copy, Check, Terminal, FileCode, ChevronRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { authClient } from "@/lib/auth-client.ts";
+import logo from "@/assets/logo.png";
 
-const Docs = () => {
-  const navigate = useNavigate();
+// Sidebar navigation structure
+const sidebarNav = [
+  {
+    title: "Get Started",
+    items: [
+      { id: "introduction", label: "Introduction" },
+      { id: "installation", label: "Installation" },
+      { id: "quick-start", label: "Quick Start" },
+    ],
+  },
+  {
+    title: "CLI",
+    items: [
+      { id: "cli-login", label: "Login" },
+      { id: "cli-push", label: "Push Components" },
+      { id: "cli-pull", label: "Pull Components" },
+      { id: "cli-list", label: "List Components" },
+      { id: "cli-update", label: "Update Components" },
+    ],
+  },
+  {
+    title: "Dashboard",
+    items: [
+      { id: "dashboard-overview", label: "Overview" },
+      { id: "dashboard-upload", label: "Upload Components" },
+      { id: "dashboard-manage", label: "Manage Components" },
+    ],
+  },
+];
+
+// Code block component with copy button
+const CodeBlock = ({ code, showLineNumbers = true }) => {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = async () => {
+    await navigator.clipboard.writeText(code);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const lines = code.split('\n');
 
   return (
-    <div className="min-h-screen bg-[#030014] text-white">
-      {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-[#060010] border-b border-white/10">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <button
-              onClick={() => navigate("/app")}
-              className="p-2 rounded-xl hover:bg-white/5 transition-colors"
-            >
-              <ArrowLeft size={20} />
-            </button>
-            <div className="flex items-center gap-2">
-              <Book className="text-violet-400" size={24} />
-              <h1 className="text-xl font-bold">Composter Documentation</h1>
+    <div className="relative group rounded-xl border border-border/50 bg-[#0d0d0d] overflow-hidden">
+      <div className="flex items-center overflow-x-auto">
+        {showLineNumbers && (
+          <div className="flex-shrink-0 py-4 pl-4 pr-3 text-right select-none border-r border-border/30">
+            {lines.map((_, i) => (
+              <div key={i} className="text-xs text-muted-foreground/50 leading-6 font-mono">
+                {i + 1}
+              </div>
+            ))}
+          </div>
+        )}
+        <pre className="flex-1 py-4 px-4 overflow-x-auto">
+          <code className="text-sm font-mono text-zinc-300 leading-6">
+            {lines.map((line, i) => (
+              <div key={i}>{line || ' '}</div>
+            ))}
+          </code>
+        </pre>
+        <button
+          onClick={handleCopy}
+          className="absolute top-3 right-3 p-2 rounded-lg bg-zinc-800/80 border border-border/50 text-muted-foreground hover:text-foreground hover:bg-zinc-700/80 transition-all opacity-0 group-hover:opacity-100"
+          title="Copy code"
+        >
+          {copied ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} />}
+        </button>
+      </div>
+    </div>
+  );
+};
+
+// Method selection card
+const MethodCard = ({ icon: Icon, label, active, onClick }) => (
+  <button
+    onClick={onClick}
+    className={cn(
+      "flex-1 flex flex-col items-center justify-center gap-3 p-8 rounded-xl border transition-all duration-200",
+      active 
+        ? "border-primary/50 bg-primary/5 text-primary" 
+        : "border-border/50 bg-card/30 text-muted-foreground hover:border-border hover:text-foreground"
+    )}
+  >
+    <Icon size={32} strokeWidth={1.5} />
+    <span className="font-medium">{label}</span>
+  </button>
+);
+
+const Docs = () => {
+  const [activeSection, setActiveSection] = useState("introduction");
+  const [user, setUser] = useState(null);
+  const [method, setMethod] = useState("cli"); // 'manual' or 'cli'
+
+  // Check auth status
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const { data } = await authClient.getSession();
+        setUser(data?.user || null);
+      } catch {
+        setUser(null);
+      }
+    };
+    checkAuth();
+  }, []);
+
+  // Handle scroll for active section
+  useEffect(() => {
+    const handleScroll = () => {
+      const sections = sidebarNav.flatMap(group => group.items.map(item => item.id));
+      const scrollPos = window.scrollY + 120;
+      
+      for (let i = sections.length - 1; i >= 0; i--) {
+        const section = document.getElementById(sections[i]);
+        if (section && section.offsetTop <= scrollPos) {
+          setActiveSection(sections[i]);
+          break;
+        }
+      }
+    };
+    
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  const scrollToSection = (id) => {
+    const element = document.getElementById(id);
+    if (element) {
+      const offset = 100;
+      const elementPosition = element.getBoundingClientRect().top + window.scrollY;
+      window.scrollTo({ top: elementPosition - offset, behavior: "smooth" });
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-[#09090b]">
+      {/* Navbar */}
+      <header className="fixed top-0 left-0 right-0 z-50 bg-[#09090b]/80 backdrop-blur-xl border-b border-border/30">
+        <div className="max-w-[1400px] mx-auto px-6">
+          <div className="flex items-center justify-between h-14">
+            {/* Logo */}
+            <Link to="/" className="flex items-center gap-2.5">
+              <img src={logo} alt="Composter" className="h-7 w-7 object-contain" />
+              <span className="text-base font-semibold text-foreground">Composter</span>
+            </Link>
+
+            {/* Right side */}
+            <div className="flex items-center gap-3">
+              <a 
+                href="https://github.com" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-border/50 bg-zinc-900 text-sm text-muted-foreground hover:text-foreground hover:border-border transition-colors"
+              >
+                <Github size={16} />
+                <span className="hidden sm:inline">Star on GitHub</span>
+              </a>
+              
+              {user ? (
+                <Button asChild size="sm" className="h-8">
+                  <Link to="/app">Dashboard</Link>
+                </Button>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <Button asChild variant="ghost" size="sm" className="h-8 hidden sm:inline-flex">
+                    <Link to="/login">Login</Link>
+                  </Button>
+                  <Button asChild size="sm" className="h-8">
+                    <Link to="/signup">Sign Up</Link>
+                  </Button>
+                </div>
+              )}
             </div>
           </div>
-          <div className="text-sm text-white/50">v1.0.0</div>
         </div>
       </header>
 
-      <div className="pt-20 max-w-7xl mx-auto px-6 py-12">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          {/* Sidebar Navigation */}
-          <aside className="lg:col-span-1">
-            <nav className="sticky top-24 space-y-6">
-              <div>
-                <h3 className="text-sm font-semibold text-white/50 uppercase mb-3">Getting Started</h3>
-                <ul className="space-y-2">
-                  <li>
-                    <a href="#introduction" className="text-white/70 hover:text-violet-400 transition-colors text-sm">
-                      Introduction
-                    </a>
-                  </li>
-                  <li>
-                    <a href="#installation" className="text-white/70 hover:text-violet-400 transition-colors text-sm">
-                      Installation
-                    </a>
-                  </li>
-                  <li>
-                    <a href="#quick-start" className="text-white/70 hover:text-violet-400 transition-colors text-sm">
-                      Quick Start
-                    </a>
-                  </li>
-                </ul>
+      <div className="max-w-[1400px] mx-auto flex">
+        {/* Sidebar */}
+        <aside className="hidden lg:block w-64 shrink-0 h-[calc(100vh-3.5rem)] sticky top-14 overflow-y-auto border-r border-border/30">
+          <nav className="py-8 px-4">
+            {sidebarNav.map((group, groupIndex) => (
+              <div key={group.title} className={cn(groupIndex > 0 && "mt-8")}>
+                <h4 className="px-3 mb-2 text-xs font-medium text-muted-foreground/70 uppercase tracking-wider">
+                  {group.title}
+                </h4>
+                <div className="space-y-0.5">
+                  {group.items.map((item) => (
+                    <button
+                      key={item.id}
+                      onClick={() => scrollToSection(item.id)}
+                      className={cn(
+                        "w-full flex items-center gap-2 px-3 py-2 text-sm rounded-lg transition-all duration-150",
+                        activeSection === item.id 
+                          ? "text-primary bg-primary/10 border-l-2 border-primary -ml-0.5 pl-[calc(0.75rem+2px)]" 
+                          : "text-muted-foreground hover:text-foreground hover:bg-zinc-800/50"
+                      )}
+                    >
+                      {item.label}
+                    </button>
+                  ))}
+                </div>
               </div>
-              <div>
-                <h3 className="text-sm font-semibold text-white/50 uppercase mb-3">CLI</h3>
-                <ul className="space-y-2">
-                  <li>
-                    <a href="#cli-login" className="text-white/70 hover:text-violet-400 transition-colors text-sm">
-                      Login
-                    </a>
-                  </li>
-                  <li>
-                    <a href="#cli-push" className="text-white/70 hover:text-violet-400 transition-colors text-sm">
-                      Push Components
-                    </a>
-                  </li>
-                  <li>
-                    <a href="#cli-pull" className="text-white/70 hover:text-violet-400 transition-colors text-sm">
-                      Pull Components
-                    </a>
-                  </li>
-                </ul>
-              </div>
-              <div>
-                <h3 className="text-sm font-semibold text-white/50 uppercase mb-3">Web Dashboard</h3>
-                <ul className="space-y-2">
-                  <li>
-                    <a href="#dashboard-overview" className="text-white/70 hover:text-violet-400 transition-colors text-sm">
-                      Overview
-                    </a>
-                  </li>
-                  <li>
-                    <a href="#upload-component" className="text-white/70 hover:text-violet-400 transition-colors text-sm">
-                      Upload Components
-                    </a>
-                  </li>
-                </ul>
-              </div>
-            </nav>
-          </aside>
+            ))}
+          </nav>
+        </aside>
 
-          {/* Main Content */}
-          <main className="lg:col-span-3 space-y-12">
+        {/* Main Content */}
+        <main className="flex-1 min-w-0 pt-14">
+          <div className="max-w-3xl mx-auto px-6 py-12">
+            
             {/* Introduction */}
-            <section id="introduction">
-              <h2 className="text-3xl font-bold mb-4 flex items-center gap-3">
-                <Zap className="text-violet-400" />
+            <section id="introduction" className="mb-20">
+              <h1 className="text-4xl sm:text-5xl font-medium bg-gradient-to-r from-purple-400 via-violet-400 to-purple-400 bg-clip-text text-transparent mb-6">
                 Introduction
-              </h2>
-              <p className="text-white/70 leading-relaxed mb-4">
-                Composter is a powerful component management system that helps developers store, organize, and share
-                React components across projects. Built with modern tools and best practices, it provides both a CLI
-                and web interface for seamless component management.
+              </h1>
+              <p className="text-lg text-muted-foreground leading-relaxed mb-8">
+                Composter is your personal vault for storing and retrieving reusable React components. 
+                Save components once, then pull them into any project using the CLI or web dashboard.
               </p>
-              <div className="bg-[#060010] border border-white/10 rounded-2xl p-6">
-                <h3 className="text-lg font-semibold mb-3 text-violet-400">Key Features</h3>
-                <ul className="space-y-2 text-white/70">
-                  <li className="flex items-start gap-2">
-                    <span className="text-violet-400 mt-1">•</span>
-                    <span>Store and organize React components with categories</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-violet-400 mt-1">•</span>
-                    <span>CLI tool for quick push/pull operations</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-violet-400 mt-1">•</span>
-                    <span>Live component preview with Sandpack</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-violet-400 mt-1">•</span>
-                    <span>MCP integration for VS Code</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-violet-400 mt-1">•</span>
-                    <span>Multi-file component support with dependencies</span>
-                  </li>
-                </ul>
+
+              <div className="grid sm:grid-cols-2 gap-4">
+                <div className="p-5 rounded-xl border border-border/30 bg-zinc-900/50">
+                  <h3 className="font-medium text-foreground mb-2">CLI Tool</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Push, pull, and manage components directly from your terminal with simple commands.
+                  </p>
+                </div>
+                <div className="p-5 rounded-xl border border-border/30 bg-zinc-900/50">
+                  <h3 className="font-medium text-foreground mb-2">Web Dashboard</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Visual interface to browse, upload, and organize your component library.
+                  </p>
+                </div>
               </div>
             </section>
 
             {/* Installation */}
-            <section id="installation">
-              <h2 className="text-3xl font-bold mb-4 flex items-center gap-3">
-                <Terminal className="text-violet-400" />
+            <section id="installation" className="mb-20">
+              <h2 className="text-3xl sm:text-4xl font-medium bg-gradient-to-r from-purple-400 via-violet-400 to-purple-400 bg-clip-text text-transparent mb-4">
                 Installation
               </h2>
-              <p className="text-white/70 leading-relaxed mb-4">
-                Install the Composter CLI globally to start managing your components from the command line.
+              <p className="text-muted-foreground mb-8">
+                Using components is very straightforward, anyone can do it.
               </p>
-              <div className="bg-[#060010] border border-white/10 rounded-2xl p-6">
-                <div className="flex items-center justify-between mb-3">
-                  <span className="text-sm text-white/50">Terminal</span>
-                  <button className="text-xs text-violet-400 hover:text-violet-300 transition-colors">
-                    Copy
-                  </button>
+
+              {/* Pick the Method */}
+              <h3 className="text-xl font-medium text-foreground mb-3">Pick The Method</h3>
+              <p className="text-muted-foreground mb-4">
+                You can keep it simple and copy code directly from the dashboard, or you can use CLI commands to install components into your project.
+              </p>
+              <p className="text-sm text-muted-foreground/70 mb-6">
+                Click the cards below to change your preferred method.
+              </p>
+
+              <div className="flex gap-4 mb-12">
+                <MethodCard 
+                  icon={FileCode} 
+                  label="Manual" 
+                  active={method === "manual"} 
+                  onClick={() => setMethod("manual")} 
+                />
+                <MethodCard 
+                  icon={Terminal} 
+                  label="CLI" 
+                  active={method === "cli"} 
+                  onClick={() => setMethod("cli")} 
+                />
+              </div>
+
+              {/* Steps */}
+              <h3 className="text-xl font-medium text-foreground mb-3">Steps</h3>
+              <p className="text-muted-foreground mb-8">
+                Follow these steps to {method === "manual" ? "manually copy" : "install"} components:
+              </p>
+
+              <div className="space-y-8">
+                <div>
+                  <h4 className="text-lg font-medium text-foreground mb-3 flex items-center gap-2">
+                    <span className="text-primary">1.</span> 
+                    {method === "cli" ? "Install the CLI" : "Browse components"}
+                  </h4>
+                  <p className="text-muted-foreground mb-4">
+                    {method === "cli" 
+                      ? "Install the Composter CLI globally to get started."
+                      : "Navigate to the dashboard and find a component you want to use."
+                    }
+                  </p>
+                  {method === "cli" && (
+                    <CodeBlock code="npm install -g composter-cli" />
+                  )}
                 </div>
-                <code className="text-violet-300 font-mono text-sm">npm install -g composter-cli</code>
+
+                <div>
+                  <h4 className="text-lg font-medium text-foreground mb-3 flex items-center gap-2">
+                    <span className="text-primary">2.</span>
+                    {method === "cli" ? "Login to your account" : "Copy the code"}
+                  </h4>
+                  <p className="text-muted-foreground mb-4">
+                    {method === "cli"
+                      ? "Authenticate with your Composter account."
+                      : "Click on the component to view its code, then copy it to your project."
+                    }
+                  </p>
+                  {method === "cli" && (
+                    <CodeBlock code="composter login" />
+                  )}
+                </div>
+
+                <div>
+                  <h4 className="text-lg font-medium text-foreground mb-3 flex items-center gap-2">
+                    <span className="text-primary">3.</span>
+                    {method === "cli" ? "Pull components" : "Install dependencies"}
+                  </h4>
+                  <p className="text-muted-foreground mb-4">
+                    {method === "cli"
+                      ? "Pull any component from your vault into your current project."
+                      : "Check if the component has any dependencies and install them."
+                    }
+                  </p>
+                  {method === "cli" && (
+                    <CodeBlock code="composter pull buttons PrimaryButton" />
+                  )}
+                </div>
               </div>
             </section>
 
             {/* Quick Start */}
-            <section id="quick-start">
-              <h2 className="text-3xl font-bold mb-4 flex items-center gap-3">
-                <Code className="text-violet-400" />
+            <section id="quick-start" className="mb-20">
+              <h2 className="text-3xl sm:text-4xl font-medium bg-gradient-to-r from-purple-400 via-violet-400 to-purple-400 bg-clip-text text-transparent mb-4">
                 Quick Start
               </h2>
+              <p className="text-muted-foreground mb-8">
+                Get up and running with Composter in under 2 minutes.
+              </p>
+
               <div className="space-y-6">
                 <div>
-                  <h3 className="text-xl font-semibold mb-3">1. Login to Composter</h3>
-                  <div className="bg-[#060010] border border-white/10 rounded-2xl p-6">
-                    <code className="text-violet-300 font-mono text-sm">composter login</code>
-                  </div>
-                  <p className="text-white/60 text-sm mt-2">
-                    Enter your email and password when prompted to authenticate.
+                  <h4 className="text-lg font-medium text-foreground mb-3">Create a category</h4>
+                  <p className="text-muted-foreground mb-4">
+                    Categories help you organize related components together.
                   </p>
+                  <CodeBlock code="composter mkcat buttons" />
                 </div>
 
                 <div>
-                  <h3 className="text-xl font-semibold mb-3">2. Push Your First Component</h3>
-                  <div className="bg-[#060010] border border-white/10 rounded-2xl p-6">
-                    <code className="text-violet-300 font-mono text-sm">
-                      composter push --title "Button" --category "UI" --file ./Button.jsx
-                    </code>
-                  </div>
-                  <p className="text-white/60 text-sm mt-2">
-                    This uploads your component to the Composter vault under the "UI" category.
+                  <h4 className="text-lg font-medium text-foreground mb-3">Push your first component</h4>
+                  <p className="text-muted-foreground mb-4">
+                    Upload a component file to your vault.
                   </p>
+                  <CodeBlock code="composter push buttons ./src/components/Button.jsx" />
                 </div>
 
                 <div>
-                  <h3 className="text-xl font-semibold mb-3">3. Pull a Component</h3>
-                  <div className="bg-[#060010] border border-white/10 rounded-2xl p-6">
-                    <code className="text-violet-300 font-mono text-sm">
-                      composter pull --title "Button" --category "UI"
-                    </code>
-                  </div>
-                  <p className="text-white/60 text-sm mt-2">
-                    Downloads the component code to your current directory.
+                  <h4 className="text-lg font-medium text-foreground mb-3">Pull into another project</h4>
+                  <p className="text-muted-foreground mb-4">
+                    Download the component into your current working directory.
                   </p>
+                  <CodeBlock code="composter pull buttons Button" />
                 </div>
               </div>
             </section>
 
-            {/* CLI Commands */}
-            <section id="cli-login">
-              <h2 className="text-2xl font-bold mb-4">CLI Commands</h2>
+            {/* CLI Login */}
+            <section id="cli-login" className="mb-20">
+              <h2 className="text-3xl sm:text-4xl font-medium bg-gradient-to-r from-purple-400 via-violet-400 to-purple-400 bg-clip-text text-transparent mb-4">
+                Login
+              </h2>
+              <p className="text-muted-foreground mb-6">
+                Authenticate with your Composter account to access your component vault.
+              </p>
+              <CodeBlock code="composter login" />
+              <p className="text-sm text-muted-foreground mt-4">
+                You'll be prompted to enter your email and password. Your session token is stored locally for future commands.
+              </p>
+            </section>
+
+            {/* CLI Push */}
+            <section id="cli-push" className="mb-20">
+              <h2 className="text-3xl sm:text-4xl font-medium bg-gradient-to-r from-purple-400 via-violet-400 to-purple-400 bg-clip-text text-transparent mb-4">
+                Push Components
+              </h2>
+              <p className="text-muted-foreground mb-6">
+                Upload components to your vault for later use.
+              </p>
+              <CodeBlock code={`composter push <category> <file-path>
+
+# Example
+composter push buttons ./src/Button.jsx
+composter push cards ./src/ProfileCard.tsx`} />
               
-              <div className="space-y-6">
-                <div className="bg-[#060010] border border-white/10 rounded-2xl p-6">
-                  <h3 className="text-lg font-semibold mb-2 text-violet-400">composter login</h3>
-                  <p className="text-white/70 mb-4">Authenticate with your Composter account.</p>
-                  <div className="bg-black/30 rounded-xl p-4">
-                    <code className="text-violet-300 font-mono text-sm">composter login</code>
+              <div className="mt-6 p-4 rounded-xl border border-border/30 bg-zinc-900/50">
+                <h4 className="font-medium text-foreground mb-2">Arguments</h4>
+                <div className="space-y-2 text-sm">
+                  <div className="flex gap-4">
+                    <code className="text-primary min-w-24">category</code>
+                    <span className="text-muted-foreground">The category to store the component in</span>
                   </div>
-                </div>
-
-                <div id="cli-push" className="bg-[#060010] border border-white/10 rounded-2xl p-6">
-                  <h3 className="text-lg font-semibold mb-2 text-violet-400">composter push</h3>
-                  <p className="text-white/70 mb-4">Upload a component to your vault.</p>
-                  <div className="bg-black/30 rounded-xl p-4 mb-4">
-                    <code className="text-violet-300 font-mono text-sm">
-                      composter push --title "ComponentName" --category "Category" --file ./path/to/file.jsx
-                    </code>
-                  </div>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex gap-3">
-                      <span className="text-white/50 min-w-24">--title</span>
-                      <span className="text-white/70">The name of your component</span>
-                    </div>
-                    <div className="flex gap-3">
-                      <span className="text-white/50 min-w-24">--category</span>
-                      <span className="text-white/70">Category to organize the component</span>
-                    </div>
-                    <div className="flex gap-3">
-                      <span className="text-white/50 min-w-24">--file</span>
-                      <span className="text-white/70">Path to the component file</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div id="cli-pull" className="bg-[#060010] border border-white/10 rounded-2xl p-6">
-                  <h3 className="text-lg font-semibold mb-2 text-violet-400">composter pull</h3>
-                  <p className="text-white/70 mb-4">Download a component from your vault.</p>
-                  <div className="bg-black/30 rounded-xl p-4 mb-4">
-                    <code className="text-violet-300 font-mono text-sm">
-                      composter pull --title "ComponentName" --category "Category"
-                    </code>
+                  <div className="flex gap-4">
+                    <code className="text-primary min-w-24">file-path</code>
+                    <span className="text-muted-foreground">Path to your component file</span>
                   </div>
                 </div>
               </div>
             </section>
 
-            {/* Dashboard */}
-            <section id="dashboard-overview">
-              <h2 className="text-2xl font-bold mb-4">Web Dashboard</h2>
+            {/* CLI Pull */}
+            <section id="cli-pull" className="mb-20">
+              <h2 className="text-3xl sm:text-4xl font-medium bg-gradient-to-r from-purple-400 via-violet-400 to-purple-400 bg-clip-text text-transparent mb-4">
+                Pull Components
+              </h2>
+              <p className="text-muted-foreground mb-6">
+                Download components from your vault into your project.
+              </p>
+              <CodeBlock code={`composter pull <category> <component-name>
+
+# Example
+composter pull buttons PrimaryButton`} />
+              <p className="text-sm text-muted-foreground mt-4">
+                Components are downloaded to a <code className="px-1.5 py-0.5 rounded bg-zinc-800 text-xs">composter/</code> folder in your current directory.
+              </p>
+            </section>
+
+            {/* CLI List */}
+            <section id="cli-list" className="mb-20">
+              <h2 className="text-3xl sm:text-4xl font-medium bg-gradient-to-r from-purple-400 via-violet-400 to-purple-400 bg-clip-text text-transparent mb-4">
+                List Components
+              </h2>
+              <p className="text-muted-foreground mb-6">
+                View all components in a category.
+              </p>
+              <CodeBlock code={`composter list <category>
+
+# Example
+composter list buttons`} />
+            </section>
+
+            {/* CLI Update */}
+            <section id="cli-update" className="mb-20">
+              <h2 className="text-3xl sm:text-4xl font-medium bg-gradient-to-r from-purple-400 via-violet-400 to-purple-400 bg-clip-text text-transparent mb-4">
+                Update Components
+              </h2>
+              <p className="text-muted-foreground mb-6">
+                Replace an existing component with a new version.
+              </p>
+              <CodeBlock code={`composter update <category> <file-path>
+
+# Example
+composter update buttons ./src/Button.jsx`} />
+            </section>
+
+            {/* Dashboard Overview */}
+            <section id="dashboard-overview" className="mb-20">
+              <h2 className="text-3xl sm:text-4xl font-medium bg-gradient-to-r from-purple-400 via-violet-400 to-purple-400 bg-clip-text text-transparent mb-4">
+                Dashboard Overview
+              </h2>
+              <p className="text-muted-foreground mb-6">
+                The web dashboard provides a visual interface to manage your component library without using the command line.
+              </p>
               
-              <div className="space-y-6">
-                <div className="bg-[#060010] border border-white/10 rounded-2xl p-6">
-                  <h3 className="text-lg font-semibold mb-2 text-violet-400">Overview</h3>
-                  <p className="text-white/70">
-                    The web dashboard provides a visual interface to manage your components. You can browse, search,
-                    preview, and upload components directly from your browser.
+              <div className="space-y-4">
+                {[
+                  { title: "Browse Components", desc: "View all your stored components organized by category." },
+                  { title: "Live Preview", desc: "See components rendered in real-time with Sandpack." },
+                  { title: "Code View", desc: "Inspect and copy component source code directly." },
+                  { title: "Search", desc: "Quickly find components across all categories." },
+                ].map((item, i) => (
+                  <div key={i} className="flex items-start gap-3 p-4 rounded-xl border border-border/30 bg-zinc-900/50">
+                    <ChevronRight size={18} className="text-primary mt-0.5 shrink-0" />
+                    <div>
+                      <h4 className="font-medium text-foreground">{item.title}</h4>
+                      <p className="text-sm text-muted-foreground">{item.desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            {/* Dashboard Upload */}
+            <section id="dashboard-upload" className="mb-20">
+              <h2 className="text-3xl sm:text-4xl font-medium bg-gradient-to-r from-purple-400 via-violet-400 to-purple-400 bg-clip-text text-transparent mb-4">
+                Upload Components
+              </h2>
+              <p className="text-muted-foreground mb-6">
+                Add new components to your vault through the web interface.
+              </p>
+
+              <ol className="space-y-4">
+                {[
+                  "Navigate to your dashboard and select a category",
+                  "Click the \"Upload Component\" button",
+                  "Paste your component code or select a file",
+                  "Add any npm dependencies if required",
+                  "Click \"Upload\" to save to your vault",
+                ].map((step, i) => (
+                  <li key={i} className="flex items-start gap-3">
+                    <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary/10 text-primary text-sm font-medium shrink-0">
+                      {i + 1}
+                    </span>
+                    <span className="text-muted-foreground pt-0.5">{step}</span>
+                  </li>
+                ))}
+              </ol>
+            </section>
+
+            {/* Dashboard Manage */}
+            <section id="dashboard-manage" className="mb-20">
+              <h2 className="text-3xl sm:text-4xl font-medium bg-gradient-to-r from-purple-400 via-violet-400 to-purple-400 bg-clip-text text-transparent mb-4">
+                Manage Components
+              </h2>
+              <p className="text-muted-foreground mb-6">
+                Edit, update, or delete components from your vault.
+              </p>
+
+              <div className="space-y-4">
+                <div className="p-5 rounded-xl border border-border/30 bg-zinc-900/50">
+                  <h4 className="font-medium text-foreground mb-2">Update a Component</h4>
+                  <p className="text-sm text-muted-foreground">
+                    Select a component → Click "Edit" → Upload the new version or modify the code directly.
                   </p>
                 </div>
-
-                <div id="upload-component" className="bg-[#060010] border border-white/10 rounded-2xl p-6">
-                  <h3 className="text-lg font-semibold mb-2 text-violet-400">Uploading Components</h3>
-                  <p className="text-white/70 mb-4">
-                    Navigate to the "My Components" section and click the "Upload Component" button. You can paste
-                    your component code directly or upload multi-file components with dependencies.
+                <div className="p-5 rounded-xl border border-border/30 bg-zinc-900/50">
+                  <h4 className="font-medium text-foreground mb-2">Delete a Component</h4>
+                  <p className="text-sm text-muted-foreground">
+                    Select a component → Click "Delete" → Confirm the action. This cannot be undone.
                   </p>
-                  <ul className="space-y-2 text-white/70 text-sm">
-                    <li className="flex items-start gap-2">
-                      <span className="text-violet-400 mt-1">1.</span>
-                      <span>Enter a title and select a category</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-violet-400 mt-1">2.</span>
-                      <span>Paste your component code or upload multiple files</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-violet-400 mt-1">3.</span>
-                      <span>Add any npm dependencies if needed</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-violet-400 mt-1">4.</span>
-                      <span>Click "Upload" to save to your vault</span>
-                    </li>
-                  </ul>
+                </div>
+                <div className="p-5 rounded-xl border border-border/30 bg-zinc-900/50">
+                  <h4 className="font-medium text-foreground mb-2">Manage Categories</h4>
+                  <p className="text-sm text-muted-foreground">
+                    Create, rename, or delete categories from the sidebar. Deleting a category removes all components inside.
+                  </p>
                 </div>
               </div>
             </section>
-          </main>
-        </div>
+
+            {/* CTA */}
+            <section className="p-8 rounded-2xl border border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
+              <h3 className="text-2xl font-medium text-foreground mb-2">Ready to get started?</h3>
+              <p className="text-muted-foreground mb-6">
+                Create an account and start building your personal component library.
+              </p>
+              <div className="flex flex-wrap gap-3">
+                <Button asChild size="lg">
+                  <Link to="/signup">Create Account</Link>
+                </Button>
+                <Button asChild variant="outline" size="lg">
+                  <Link to="/app">Go to Dashboard</Link>
+                </Button>
+              </div>
+            </section>
+
+          </div>
+        </main>
       </div>
     </div>
   );
