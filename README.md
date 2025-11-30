@@ -22,15 +22,7 @@
 </p>
 
 ---
-
-<!-- SCREENSHOT: Landing Page -->
-<!-- 
-📸 ADD SCREENSHOT HERE:
-1. Take a screenshot of the landing page (full hero section with CLI gif)
-2. Save as: docs/screenshots/landing-page.png
-3. Uncomment the line below:
--->
-<!-- ![Composter Landing Page](docs/screenshots/landing-page.png) -->
+[Composter Landing Page](docs/screenshots/landing-page.png) 
 
 ## ✨ Features
 
@@ -156,27 +148,16 @@ composter push buttons "PrimaryButton" ./src/components/Button.jsx
 composter pull buttons "PrimaryButton" ./components/
 ```
 
-<!-- SCREENSHOT: CLI Usage -->
-<!-- 
-📸 ADD SCREENSHOT HERE:
-1. Record or screenshot the CLI in action (showing login and push commands)
-2. Save as: docs/screenshots/cli-usage.png
-3. Uncomment the line below:
--->
-<!-- ![CLI Usage](docs/screenshots/cli-usage.png) -->
+
+[CLI Usage](docs/screenshots/cli-usage.gif)
 
 ### Web Dashboard
 
 Access the dashboard at `http://localhost:5173` after starting the frontend.
 
-<!-- SCREENSHOT: Dashboard -->
-<!-- 
-📸 ADD SCREENSHOT HERE:
-1. Take a screenshot of the dashboard home page showing components
-2. Save as: docs/screenshots/dashboard.png
-3. Uncomment the line below:
+
 -->
-<!-- ![Dashboard](docs/screenshots/dashboard.png) -->
+[Dashboard](docs/screenshots/dashboard.png)
 
 #### Dashboard Features
 
@@ -185,14 +166,9 @@ Access the dashboard at `http://localhost:5173` after starting the frontend.
 - **Code View** — Inspect source code with syntax highlighting
 - **Copy Commands** — One-click copy for npm install and CLI commands
 
-<!-- SCREENSHOT: Component Detail -->
-<!-- 
-📸 ADD SCREENSHOT HERE:
-1. Take a screenshot of a component detail page showing preview and code
-2. Save as: docs/screenshots/component-detail.png
-3. Uncomment the line below:
+
 -->
-<!-- ![Component Detail](docs/screenshots/component-detail.png) -->
+[Component Detail](docs/screenshots/component-detail.png)
 
 ## 🤖 MCP Integration
 
@@ -249,15 +225,7 @@ Composter includes a Model Context Protocol (MCP) server that enables AI assista
 | `search_components` | Search components by name or category |
 | `read_component` | Read the full source code of a component |
 
-<!-- SCREENSHOT: MCP in Action -->
-<!-- 
-📸 ADD SCREENSHOT HERE:
-1. Take a screenshot showing an AI assistant using Composter MCP
-   (e.g., Claude searching for components or reading component code)
-2. Save as: docs/screenshots/mcp-integration.png
-3. Uncomment the line below:
--->
-<!-- ![MCP Integration](docs/screenshots/mcp-integration.png) -->
+
 
 For detailed MCP documentation, see [mcp/README.md](mcp/README.md).
 
@@ -384,66 +352,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-## 📸 Screenshot Guide
-
-To add screenshots to this README:
-
-### 1. Create Screenshots Directory
-
-```bash
-mkdir -p docs/screenshots
-```
-
-### 2. Required Screenshots
-
-| Screenshot | Description | Suggested Size |
-|------------|-------------|----------------|
-| `landing-page.png` | Full landing page with hero section | 1920x1080 |
-| `cli-usage.png` | Terminal showing CLI commands | 800x600 |
-| `dashboard.png` | Dashboard home with components list | 1920x1080 |
-| `component-detail.png` | Component preview and code view | 1920x1080 |
-| `mcp-integration.png` | AI assistant using Composter | 1200x800 |
-
-### 3. Taking Screenshots
-
-**For Web Pages:**
-1. Open the page in your browser
-2. Press `F12` to open DevTools
-3. Press `Ctrl+Shift+P` (or `Cmd+Shift+P` on Mac)
-4. Type "screenshot" and select "Capture full size screenshot"
-
-**For Terminal:**
-1. Use a terminal with a clean theme
-2. Run the commands you want to showcase
-3. Use a screenshot tool or `gnome-screenshot` on Linux
-
-**For AI Integration:**
-1. Open your AI assistant (Claude, Cursor, etc.)
-2. Run a Composter MCP command
-3. Screenshot the conversation showing the result
-
-### 4. Adding to README
-
-After saving screenshots to `docs/screenshots/`, uncomment the relevant lines in this README:
-
-```markdown
-<!-- Before -->
-<!-- ![Dashboard](docs/screenshots/dashboard.png) -->
-
-<!-- After -->
-![Dashboard](docs/screenshots/dashboard.png)
-```
-
-### 5. Image Optimization (Optional)
-
-For faster loading, optimize images before committing:
-
-```bash
-# Using ImageMagick
-mogrify -resize 1920x1080 -quality 85 docs/screenshots/*.png
-
-# Or using online tools like:
-# - TinyPNG (https://tinypng.com)
-# - Squoosh (https://squoosh.app)
-```
 
