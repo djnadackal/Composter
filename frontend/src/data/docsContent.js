@@ -39,7 +39,14 @@ export const sidebarNav = [
     items: [
       { id: "dashboard-overview", label: "Overview" },
       { id: "dashboard-upload", label: "Upload Components" },
-      { id: "dashboard-manage", label: "Manage Components" },
+    ],
+  },
+  {
+    title: "MCP",
+    items: [
+      { id: "mcp-overview", label: "Overview" },
+      { id: "mcp-setup", label: "Setup" },
+      { id: "mcp-tools", label: "Available Tools" },
     ],
   },
 ];
@@ -208,21 +215,97 @@ composter update buttons ./src/Button.jsx`,
     ],
   },
 
-  "dashboard-manage": {
-    title: "Manage Components",
-    description: "Edit, update, or delete components from your vault.",
-    actions: [
+  // ============================================
+  // MCP SECTION
+  // ============================================
+
+  "mcp-overview": {
+    title: "MCP Overview",
+    description: "The Model Context Protocol (MCP) enables AI assistants like Claude, Cursor, and GitHub Copilot to interact with your Composter component vault directly.",
+    features: [
+      { title: "Search Components", description: "AI can search through your saved components by name or category." },
+      { title: "Read Source Code", description: "AI can read the full source code of any component in your vault." },
+      { title: "User Scoped", description: "All operations are securely scoped to your authenticated account." },
+      { title: "Real-time Access", description: "Your AI assistant always has access to your latest components." },
+    ],
+  },
+
+  "mcp-setup": {
+    title: "MCP Setup",
+    description: "Configure your AI assistant to connect with Composter MCP server.",
+    steps: [
       {
-        title: "Update a Component",
-        description: "Select a component → Click \"Edit\" → Upload the new version or modify the code directly.",
+        title: "Login via CLI",
+        description: "First, authenticate with your Composter account using the CLI.",
+        code: "composter login",
       },
       {
-        title: "Delete a Component",
-        description: "Select a component → Click \"Delete\" → Confirm the action. This cannot be undone.",
+        title: "Start MCP Server",
+        description: "Navigate to the mcp directory and start the server.",
+        code: "cd mcp && npm start",
       },
       {
-        title: "Manage Categories",
-        description: "Create, rename, or delete categories from the sidebar. Deleting a category removes all components inside.",
+        title: "Configure Your AI Tool",
+        description: "Add Composter to your AI assistant's MCP configuration.",
+      },
+    ],
+    configs: [
+      {
+        title: "Claude Desktop",
+        path: "~/.config/claude/claude_desktop_config.json",
+        code: `{
+  "mcpServers": {
+    "composter": {
+      "command": "node",
+      "args": ["/path/to/Composter/mcp/src/server.js"],
+      "cwd": "/path/to/Composter"
+    }
+  }
+}`,
+      },
+      {
+        title: "Cursor",
+        path: "Settings > MCP",
+        code: `{
+  "composter": {
+    "command": "node",
+    "args": ["mcp/src/server.js"],
+    "cwd": "/path/to/Composter"
+  }
+}`,
+      },
+    ],
+  },
+
+  "mcp-tools": {
+    title: "Available Tools",
+    description: "The Composter MCP server exposes the following tools for AI assistants.",
+    tools: [
+      {
+        name: "search_components",
+        description: "Search for React components by title or category name. Returns a list of matching components with their IDs and categories.",
+        params: [
+          { name: "query", type: "string", description: "Search term for component title or category name" },
+        ],
+        example: `Found the following components:
+- [ID: abc123] Button (Category: UI)
+- [ID: def456] ButtonGroup (Category: UI)`,
+      },
+      {
+        name: "read_component",
+        description: "Read the full source code of a specific React component by its name. Returns the component code, category, and creation date.",
+        params: [
+          { name: "componentName", type: "string", description: "The name of the component to read" },
+        ],
+        example: `Filename: Button.jsx
+Category: UI
+Created: 2024-01-15T10:30:00.000Z
+
+\`\`\`javascript
+export const Button = ({ children }) => {
+  return <button>{children}</button>;
+};
+\`\`\``,
       },
     ],
   },

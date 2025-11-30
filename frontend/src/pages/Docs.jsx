@@ -107,6 +107,22 @@ const Docs = () => {
     checkAuth();
   }, []);
 
+  // Handle hash in URL to scroll to specific section
+  useEffect(() => {
+    const hash = window.location.hash.replace('#', '');
+    if (hash) {
+      setTimeout(() => {
+        const element = document.getElementById(hash);
+        if (element) {
+          const offset = 100;
+          const elementPosition = element.getBoundingClientRect().top + window.scrollY;
+          window.scrollTo({ top: elementPosition - offset, behavior: "smooth" });
+          setActiveSection(hash);
+        }
+      }, 100);
+    }
+  }, []);
+
   useEffect(() => {
     const handleScroll = () => {
       const sections = sidebarNav.flatMap(group => group.items.map(item => item.id));
@@ -277,6 +293,58 @@ const Docs = () => {
           <div className="space-y-4">
             {content.actions.map((action, i) => (
               <InfoCard key={i} {...action} />
+            ))}
+          </div>
+        )}
+
+        {/* MCP Configs (for mcp-setup) */}
+        {content.configs && (
+          <div className="mt-8 space-y-6">
+            <h3 className="text-lg sm:text-xl font-medium text-foreground">Configuration Examples</h3>
+            {content.configs.map((config, i) => (
+              <div key={i} className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <h4 className="font-medium text-foreground">{config.title}</h4>
+                  <code className="text-xs text-muted-foreground bg-zinc-800 px-2 py-0.5 rounded">{config.path}</code>
+                </div>
+                <CodeBlock code={config.code} />
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* MCP Tools (for mcp-tools) */}
+        {content.tools && (
+          <div className="space-y-8">
+            {content.tools.map((tool, i) => (
+              <div key={i} className="p-5 rounded-xl border border-border/30 bg-zinc-900/50">
+                <h3 className="font-mono text-lg font-semibold text-primary mb-2">{tool.name}</h3>
+                <p className="text-muted-foreground mb-4">{tool.description}</p>
+                
+                {tool.params && (
+                  <div className="mb-4">
+                    <h4 className="text-sm font-medium text-foreground mb-2">Parameters</h4>
+                    <div className="space-y-1">
+                      {tool.params.map((param, j) => (
+                        <div key={j} className="flex items-center gap-2 text-sm">
+                          <code className="text-primary">{param.name}</code>
+                          <span className="text-muted-foreground/60">({param.type})</span>
+                          <span className="text-muted-foreground">— {param.description}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                
+                {tool.example && (
+                  <div>
+                    <h4 className="text-sm font-medium text-foreground mb-2">Example Response</h4>
+                    <div className="bg-[#0d0d0d] rounded-lg p-4 border border-border/30">
+                      <pre className="text-sm text-zinc-400 whitespace-pre-wrap font-mono">{tool.example}</pre>
+                    </div>
+                  </div>
+                )}
+              </div>
             ))}
           </div>
         )}
