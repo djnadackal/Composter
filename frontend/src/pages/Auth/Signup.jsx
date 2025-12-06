@@ -57,7 +57,7 @@ const Signup = () => {
             <div className="relative z-10 w-full max-w-md mx-4">
                 {/* Logo */}
                 <Link to="/" className="flex items-center justify-center gap-2 mb-8">
-                    <img src={logo} alt="Composter" className="h-12 w-12 object-contain rounded-xl" />
+                    <img src={logo} alt="Composter" className="h-12 w-12 object-contain " />
                     <span className="text-2xl font-bold text-foreground">Composter</span>
                 </Link>
 

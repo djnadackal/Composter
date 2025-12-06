@@ -179,14 +179,14 @@ composter pull buttons PrimaryButton`,
 composter list buttons`,
   },
 
-//   "cli-update": {
-//     title: "Update Components",
-//     description: "Replace an existing component with a new version.",
-//     code: `composter update <category> <file-path>
+   "cli-update": {
+     title: "Update Components",
+     description: "Replace an existing component with a new version.",
+     code: `composter update <category> <file-path>
 
-// # Example
-// composter update buttons ./src/Button.jsx`,
-//   },
+ # Example
+ composter update buttons ./src/Button.jsx`,
+   },
 
   // ============================================
   // DASHBOARD SECTION
