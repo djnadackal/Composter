@@ -6,7 +6,7 @@ import { mkcat } from "./commands/mkcat.js";
 import { listCategories } from "./commands/listCat.js";
 import { pushComponent } from "./commands/push.js";
 import { pullComponent } from "./commands/pull.js";
-import { create } from "framer-motion/m";
+
 
 const require = createRequire(import.meta.url);
 const packageJson = require("../package.json");
