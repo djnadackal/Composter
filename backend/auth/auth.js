@@ -24,6 +24,8 @@ const auth = betterAuth({
   ].filter(Boolean),
 
   session: {
+    expiresIn: 60 * 60 * 24 * 7, // 7 days
+    updateAge: 60 * 60 * 24, // 1 day
     cookieCache: {
       enabled: true,
       maxAge: 5 * 60,
@@ -32,12 +34,29 @@ const auth = betterAuth({
 
   advanced: {
     useSecureCookies: true,
-    cookieOptions: {
-      sameSite: "none",
-      secure: true,
-      httpOnly: true,
-      path: "/",
-      domain: undefined,
+    crossSubDomainCookies: {
+      enabled: true,
+    },
+  },
+
+  cookies: {
+    session_token: {
+      name: "__Secure-better-auth.session_token",
+      options: {
+        httpOnly: true,
+        sameSite: "none",
+        secure: true,
+        path: "/",
+      }
+    },
+    session_data: {
+      name: "__Secure-better-auth.session_data", 
+      options: {
+        httpOnly: true,
+        sameSite: "none",
+        secure: true,
+        path: "/",
+      }
     }
   },
 
