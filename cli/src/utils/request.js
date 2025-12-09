@@ -3,7 +3,7 @@ import { loadSession } from "./session.js";
 import dotenv from "dotenv";
 dotenv.config({ silent: true });
 
-const BASE_URL = process.env.BASE_URL;
+const BASE_URL = process.env.BASE_URL || "https://composter.onrender.com/api";
 
 export async function apiRequest(path, options = {}) {
   const session = loadSession();

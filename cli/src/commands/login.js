@@ -9,7 +9,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 dotenv.config({ path: join(__dirname, '../../.env') });
 
-const BASE_URL = `${process.env.BASE_URL}/auth`;
+const BASE_URL = `${process.env.BASE_URL || "https://composter.onrender.com/api"}/auth`;
 
 export async function login() {
   console.log("=== Composter Login ===");

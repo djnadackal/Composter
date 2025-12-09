@@ -1,18 +1,22 @@
 {
-  "name": "cli",
+  "name": "composter",
   "version": "1.0.0",
   "type": "module",
-  "description": "",
-  "main": "index.js",
+  "description": "CLI tool to manage and sync React components to your personal component vault",
+  "main": "src/index.js",
   "bin": {
-    "composter": "./src/index.js"
+    "composter": "./bin/composter.js"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": ["react", "components", "cli", "vault", "library", "shadcn"],
+  "author": "binit2-1",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/binit2-1/Composter"
+  },
   "dependencies": {
     "commander": "^14.0.2",
     "dotenv": "^16.4.5",
