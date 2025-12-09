@@ -22,6 +22,14 @@ const auth = betterAuth({
     process.env.CLIENT_URL
   ].filter(Boolean),
 
+  advanced: {
+    cookieOptions: {
+      sameSite: "none",
+      secure: true,
+      httpOnly: true,
+    }
+  },
+
   plugins: [
     jwt()
   ],
