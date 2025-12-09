@@ -32,11 +32,10 @@ app.use(
     allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
     exposedHeaders: ["Set-Cookie"],
     maxAge: 86400, // 24 hours - cache preflight
+    preflightContinue: false,
+    optionsSuccessStatus: 204
   })
 );
-
-// Handle OPTIONS preflight for all routes
-app.options('*', cors());
 
 //Better-Auth
 app.all("/api/auth/*splat", toNodeHandler(auth));
