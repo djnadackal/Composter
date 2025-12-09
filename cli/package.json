@@ -1,8 +1,8 @@
 {
   "name": "composter-cli",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "type": "module",
-  "description": "CLI tool to manage and sync React components to your personal component vault",
+  "description": "Your personal vault for React components. Push, pull, and sync reusable components across projects — like shadcn/ui but for YOUR code.",
   "main": "src/index.js",
   "bin": {
     "composter": "./bin/composter.js"
@@ -16,13 +16,26 @@
     "cli",
     "vault",
     "library",
-    "shadcn"
+    "shadcn",
+    "component-library",
+    "code-sharing",
+    "developer-tools",
+    "productivity",
+    "mcp",
+    "ai-tools"
   ],
   "author": "binit2-1",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/binit2-1/Composter"
+    "url": "git+https://github.com/binit2-1/Composter.git"
+  },
+  "homepage": "https://composter.vercel.app",
+  "bugs": {
+    "url": "https://github.com/binit2-1/Composter/issues"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   },
   "dependencies": {
     "commander": "^14.0.2",
