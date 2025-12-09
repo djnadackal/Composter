@@ -17,7 +17,10 @@ const auth = betterAuth({
     requireEmailVerification: false
   },
 
-  trustedOrigins: ["http://localhost:5173"],
+  trustedOrigins: [
+    "http://localhost:5173",
+    process.env.CLIENT_URL
+  ].filter(Boolean),
 
   plugins: [
     jwt()

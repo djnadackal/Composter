@@ -1,6 +1,6 @@
 import express from "express";
 import { toNodeHandler, fromNodeHeaders } from "better-auth/node";
-import auth from "./auth/auth.ts";
+import auth from "./auth/auth.js";
 import cors from "cors";
 import categoryRouter from "./routes/cliCategoryRoute.js";
 import componentRouter from "./routes/cliComponentRoute.js";

@@ -1,6 +1,6 @@
 import { jwtVerify, createRemoteJWKSet } from "jose";
 import { fromNodeHeaders } from "better-auth/node";
-import auth from "../auth/auth.ts";
+import auth from "../auth/auth.js";
 
 const JWKS = createRemoteJWKSet(
   new URL("http://localhost:3000/api/auth/jwks")
