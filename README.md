@@ -18,6 +18,7 @@
   <a href="#installation">Installation</a> •
   <a href="#usage">Usage</a> •
   <a href="#mcp-integration">MCP Integration</a> •
+  <a href="#links">Links</a> •
   <a href="#contributing">Contributing</a>
 </p>
 
@@ -34,6 +35,13 @@
 - **🔐 Secure Auth** — Better Auth integration with JWT-based authentication
 - **📦 Live Preview** — Sandpack-powered component previews with Tailwind CSS support
 - **📋 One-Click Copy** — Copy component code or CLI commands instantly
+
+## 🔗 Links
+
+- Web App: [composter.vercel.app](https://composter.vercel.app)
+- CLI npm: [npmjs.com/package/composter-cli](https://www.npmjs.com/package/composter-cli)
+- MCP npm: [npmjs.com/package/composter-mcp](https://www.npmjs.com/package/composter-mcp)
+- GitHub: [github.com/binit2-1/Composter](https://github.com/binit2-1/Composter)
 
 ## 🏗️ Architecture
 
@@ -238,6 +246,10 @@ If you prefer manual setup, add to your IDE's MCP config file:
 | `read_component` | Read the full source code of a component |
 
 For detailed MCP documentation, see [mcp/README.md](mcp/README.md).
+
+### npm Package References
+- CLI: [composter-cli on npm](https://www.npmjs.com/package/composter-cli)
+- MCP: [composter-mcp on npm](https://www.npmjs.com/package/composter-mcp)
 
 ## 📁 Project Structure
 

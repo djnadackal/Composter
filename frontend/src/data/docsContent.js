@@ -263,6 +263,12 @@ npx composter-mcp init windsurf`,
         title: "Restart Your AI Assistant",
         description: "Close and reopen your AI assistant to apply the configuration.",
       },
+      {
+        title: "Docs & Packages",
+        description: "Refer to the npm package pages for CLI and MCP usage.",
+        code: `CLI: https://www.npmjs.com/package/composter-cli
+MCP: https://www.npmjs.com/package/composter-mcp`,
+      },
     ],
     configs: [
       {
