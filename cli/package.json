@@ -36,9 +36,15 @@
     "node": ">=18.0.0"
   },
   "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.24.3",
     "commander": "^14.0.2",
     "dotenv": "^16.4.5",
     "inquirer": "^13.0.1",
     "node-fetch": "^3.3.2"
-  }
+  },
+  "files": [
+    "src/",
+    "bin/",
+    "mcp/"
+  ]
 }
