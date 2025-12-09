@@ -314,38 +314,75 @@ npm dependencies are tracked with versions from your `package.json`:
 
 ## 🤖 AI Integration (MCP)
 
-Composter includes a Model Context Protocol (MCP) server that lets AI assistants interact with your vault.
+Composter includes a built-in Model Context Protocol (MCP) server that lets AI assistants interact with your vault directly.
 
-### Supported Assistants
+### Quick Setup
 
-- **Claude Desktop** — Full MCP support
-- **Cursor** — Native MCP integration
-- **VS Code + Copilot** — Via MCP extension
+```bash
+# One command to configure your AI assistant
+npx composter-cli@latest mcp init --client claude
+```
 
-### What AI Can Do
+**Supported clients:**
+- `claude` — Claude Desktop
+- `cursor` — Cursor IDE
+- `vscode` — VS Code with Copilot
+- `windsurf` — Windsurf IDE
+
+### MCP Commands
+
+| Command | Description |
+|---------|-------------|
+| `composter mcp init --client <name>` | Configure MCP for an AI assistant |
+| `composter mcp serve` | Start MCP server directly (testing) |
+| `composter mcp info` | Show MCP configuration info |
+
+### Options
+
+```bash
+# Configure for Claude Desktop
+composter mcp init --client claude
+
+# Configure for Cursor
+composter mcp init --client cursor
+
+# Use localhost backend (development)
+composter mcp init --client claude --dev
+
+# Show manual config instructions
+composter mcp info
+```
+
+### Available AI Tools
+
+Once configured, your AI assistant can use these tools:
 
 | Tool | Description |
 |------|-------------|
 | `search_components` | Search your vault by name or category |
-| `read_component` | Read full source code of any component |
+| `list_categories` | List all your categories |
+| `list_components` | List components in a category |
+| `read_component` | Read full source code of a component |
 
-### Setup Example (Claude Desktop)
+### Example AI Prompts
 
-Add to `~/.config/claude/claude_desktop_config.json`:
+After setup, you can ask your AI:
+- *"Search my Composter vault for button components"*
+- *"What categories do I have in Composter?"*
+- *"Read the DataTable component from my ui category"*
+- *"List all components in my hooks category"*
 
-```json
-{
-  "mcpServers": {
-    "composter": {
-      "command": "node",
-      "args": ["/path/to/Composter/mcp/src/server.js"],
-      "cwd": "/path/to/Composter"
-    }
-  }
-}
+### Development Mode
+
+For local development with `localhost:3000` backend:
+
+```bash
+# Initialize with dev flag
+composter mcp init --client claude --dev
+
+# Or set environment variable
+COMPOSTER_DEV=true composter mcp serve
 ```
-
-📖 [Full MCP Documentation](https://github.com/binit2-1/Composter/tree/main/mcp)
 
 ---
 
