@@ -270,3 +270,22 @@ export async function listComponentsByCategory(req, res) {
     return res.status(500).json({ error: "Internal server error" });
   }
 }
+
+export async function deleteComponent(req, res){
+  try{
+    const userId = req.user?.id;
+    if (!userId) return res.status(401).json({ error: "Unauthorized" });
+
+    const { id } = req.params;
+    if (!id) return res.status(400).json({ error: "Component ID is required" });
+
+    const component = await prisma.component.delete({
+      where: { id, userId }
+    });
+    
+    return res.status(200).json({ message: "Component deleted successfully" });
+  } catch (err) {
+    console.error("Delete Component Error:", err);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+}

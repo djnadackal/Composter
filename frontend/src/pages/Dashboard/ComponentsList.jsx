@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { Search, Filter, Layers, Code2, Eye, Plus } from "lucide-react";
+import { Search, Filter, Layers, Code2, Eye, Plus, Trash } from "lucide-react";
 import { Link } from "react-router-dom";
 import Card from "../../components/ui/Card.jsx";
 import { Button } from "@/components/ui/button";
+import { SpringModal } from "@/components/ui/SpringModal.jsx";
 
 // --- SUB-COMPONENT: Simple card without live preview ---
-const ComponentCard = ({ comp, formatTimeAgo }) => {
+const ComponentCard = ({ comp, formatTimeAgo, onDeleteClick }) => {
   // Parse dependencies count
   let depsCount = 0;
   if (comp.dependencies) {
@@ -17,9 +18,24 @@ const ComponentCard = ({ comp, formatTimeAgo }) => {
     } catch (e) {}
   }
 
+  const handleDelete = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (onDeleteClick) onDeleteClick(comp.id, comp.title);
+  };
+
   return (
     <Link to={`/app/components/${comp.id}`}>
-      <Card hoverEffect className="h-full group">
+      <Card hoverEffect className="h-full group relative">
+        {/* Delete Button - Top Right */}
+        <button
+          onClick={handleDelete}
+          className="absolute top-3 right-3 z-20 p-1.5 rounded-md bg-zinc-800/80 hover:bg-red-500/20 border border-border/30 hover:border-red-500/50 text-muted-foreground hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all duration-200"
+          title="Delete component"
+        >
+          <Trash size={14} />
+        </button>
+
         {/* Preview Area - Static Placeholder */}
         <div className="aspect-video rounded-lg mb-4 overflow-hidden border border-border/30 bg-zinc-950 flex items-center justify-center relative">
           <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAwIDEwIEwgNDAgMTAgTSAxMCAwIEwgMTAgNDAgTSAwIDIwIEwgNDAgMjAgTSAyMCAwIEwgMjAgNDAgTSAwIDMwIEwgNDAgMzAgTSAzMCAwIEwgMzAgNDAiIGZpbGw9Im5vbmUiIHN0cm9rZT0icmdiYSgyNTUsMjU1LDI1NSwwLjAzKSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIi8+PC9zdmc+')] opacity-50"></div>
@@ -66,6 +82,37 @@ const ComponentsList = () => {
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [showFilter, setShowFilter] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [deleteModal, setDeleteModal] = useState({ open: false, componentId: null, componentName: "" });
+
+  const openDeleteModal = (componentId, componentName) => {
+    setDeleteModal({ open: true, componentId, componentName });
+  };
+
+  const closeDeleteModal = () => {
+    setDeleteModal({ open: false, componentId: null, componentName: "" });
+  };
+
+  const handleDeleteComponent = async () => {
+    const { componentId } = deleteModal;
+    if (!componentId) return;
+    
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/components/${componentId}`, {
+        method: "DELETE",
+        credentials: "include"
+      });
+      
+      if (res.ok) {
+        setComponents(prev => prev.filter(c => c.id !== componentId));
+      } else {
+        console.error("Failed to delete component");
+      }
+    } catch (error) {
+      console.error("Error deleting component:", error);
+    } finally {
+      closeDeleteModal();
+    }
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -120,6 +167,7 @@ const ComponentsList = () => {
   };
 
   return (
+    
     <div className="space-y-6">
       {/* Header & Controls */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -203,7 +251,12 @@ const ComponentsList = () => {
       {!loading && displayComponents.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {displayComponents.map((comp) => (
-            <ComponentCard key={comp.id} comp={comp} formatTimeAgo={formatTimeAgo} />
+            <ComponentCard 
+              key={comp.id} 
+              comp={comp} 
+              formatTimeAgo={formatTimeAgo} 
+              onDeleteClick={openDeleteModal}
+            />
           ))}
         </div>
       )}
@@ -215,6 +268,18 @@ const ComponentsList = () => {
           <p>{searchQuery ? "No components found matching your search" : "No components yet. Upload your first component!"}</p>
         </div>
       )}
+
+      {/* Delete Confirmation Modal */}
+      <SpringModal 
+        isOpen={deleteModal.open} 
+        setIsOpen={(val) => !val && closeDeleteModal()}
+        title="Delete Component?"
+        message={`Are you sure you want to delete "${deleteModal.componentName}"? This action cannot be undone.`}
+        confirmText="Delete"
+        cancelText="Cancel"
+        onConfirm={handleDeleteComponent}
+        variant="danger"
+      />
     </div>
   );
 };

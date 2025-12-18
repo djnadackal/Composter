@@ -7,7 +7,8 @@ import {
   getComponentById, 
   recentComponents,
   searchComponents,
-  listComponentsByCategory
+  listComponentsByCategory,
+  deleteComponent
 } from "../controllers/cliComponentController.js";
 import { authMiddleware } from "../middlewares/authMiddleware.js";
 
@@ -21,5 +22,5 @@ componentRouter.get("/recent", authMiddleware, recentComponents);
 componentRouter.get("/count", authMiddleware, countComponents);
 componentRouter.get("/:id", authMiddleware, getComponentById);
 componentRouter.get("/", authMiddleware, pullComponent);
-
+componentRouter.delete("/:id", authMiddleware, deleteComponent);
 export default componentRouter;
