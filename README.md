@@ -13,11 +13,21 @@
 </p>
 
 <p align="center">
-  <a href="#features">Features</a> •
-  <a href="#quick-start">Quick Start</a> •
-  <a href="#usage">Usage</a> •
-  <a href="#mcp-integration">MCP Integration</a> •
-  <a href="#contributing">Contributing</a>
+  <a href="https://github.com/binit2-1/Composter/blob/main/LICENSE">
+    <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT License">
+  </a>
+  <a href="https://www.npmjs.com/package/composter-cli">
+    <img src="https://img.shields.io/npm/v/composter-cli.svg" alt="npm version">
+  </a>
+  <a href="https://github.com/binit2-1/Composter/actions">
+    <img src="https://img.shields.io/github/actions/workflow/status/binit2-1/Composter/ci.yml?branch=main" alt="CI Status">
+  </a>
+  <a href="https://github.com/binit2-1/Composter/issues">
+    <img src="https://img.shields.io/github/issues/binit2-1/Composter.svg" alt="Issues">
+  </a>
+  <a href="https://github.com/binit2-1/Composter/stargazers">
+    <img src="https://img.shields.io/github/stars/binit2-1/Composter.svg?style=social" alt="GitHub stars">
+  </a>
 </p>
 
 ---
@@ -192,6 +202,21 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - [shadcn/ui](https://ui.shadcn.com/) — UI components
 - [Model Context Protocol](https://modelcontextprotocol.io/) — AI integration
 - [@lobehub/icons](https://github.com/lobehub/lobe-icons) — Beautiful icons
+
+## 🌟 Community
+
+- **Discussions:** [Ask questions and share ideas](https://github.com/binit2-1/Composter/discussions)
+- **Issues:** [Report bugs or request features](https://github.com/binit2-1/Composter/issues)
+- **Contributing:** [Read our contribution guide](CONTRIBUTING.md)
+- **Security:** [Report vulnerabilities](SECURITY.md)
+
+### Contributors
+
+Thanks to all our contributors! 🎉
+
+<a href="https://github.com/binit2-1/Composter/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=binit2-1/Composter" />
+</a>
 
 ---
 
