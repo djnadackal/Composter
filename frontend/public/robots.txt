@@ -1,0 +1,13 @@
+# Composter - robots.txt
+# https://composter.vercel.app
+
+User-agent: *
+Allow: /
+
+# Block internal/private paths
+Disallow: /api/
+Disallow: /dashboard/
+Disallow: /admin/
+
+# Sitemap (uncomment when available)
+# Sitemap: https://composter.vercel.app/sitemap.xml
